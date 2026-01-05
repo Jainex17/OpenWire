@@ -1,10 +1,10 @@
 "use client";
 
-import { useState, useEffect, useRef, useCallback } from "react";
+import { useEffect, useRef, useCallback } from "react";
 import CanvasToolbar from "./components/CanvasToolbar";
 import ClickableSection from "./components/ClickableSection";
 import SectionCustomizePopup from "./components/SectionCustomizePopup";
-import { type SectionType } from "./lib/sectionLayouts";
+import { useEditorStore } from "./store/useEditorStore";
 
 const DEVICE_DIMENSIONS = {
   desktop: { width: 1440, height: 900, label: "Desktop" },
@@ -12,45 +12,41 @@ const DEVICE_DIMENSIONS = {
   mobile: { width: 375, height: 812, label: "Mobile" },
 } as const;
 
-type DeviceType = keyof typeof DEVICE_DIMENSIONS;
-
-interface Screen {
-  id: string;
-  title: string;
-  contentHeight: number;
-}
-
 export default function Home() {
-  const [zoom, setZoom] = useState(11);
-  const [panOffset, setPanOffset] = useState({ x: 0, y: 0 });
-  const [activeDevice, setActiveDevice] = useState<DeviceType>("desktop");
   const canvasRef = useRef<HTMLDivElement>(null);
 
-  const [selectedSection, setSelectedSection] = useState<{ id: string; type: SectionType } | null>(null);
-  const [sectionLayouts, setSectionLayouts] = useState<Record<string, string>>({});
+  const {
+    zoom, panOffset, activeDevice,
+    pages, sections, selectedSectionId,
+    setZoom, setPanOffset, setActiveDevice, setSelectedSection,
+    updateSectionLayout, updateSectionData
+  } = useEditorStore();
 
   const MIN_ZOOM = 5;
   const MAX_ZOOM = 200;
 
   const handleZoomChange = useCallback((newZoom: number) => {
     setZoom(Math.min(Math.max(newZoom, MIN_ZOOM), MAX_ZOOM));
-  }, []);
+  }, [setZoom]);
 
   const handleReset = useCallback(() => {
     setZoom(11);
     setPanOffset({ x: 0, y: 0 });
-  }, []);
+  }, [setZoom, setPanOffset]);
 
-  const handleSectionSelect = (id: string, type: SectionType) => {
-    setSelectedSection({ id, type });
+  const handleSectionSelect = (id: string) => {
+    setSelectedSection(id);
   };
 
   const handleLayoutSelect = (layoutId: string) => {
-    if (selectedSection) {
-      setSectionLayouts((prev) => ({
-        ...prev,
-        [selectedSection.id]: layoutId,
-      }));
+    if (selectedSectionId) {
+      updateSectionLayout(selectedSectionId, layoutId);
+    }
+  };
+
+  const handleUpdateSection = (data: Partial<typeof sections[string]>) => {
+    if (selectedSectionId) {
+      updateSectionData(selectedSectionId, data);
     }
   };
 
@@ -71,10 +67,10 @@ export default function Home() {
         const newZoom = zoom * zoomFactor;
         handleZoomChange(newZoom);
       } else {
-        setPanOffset((prev) => ({
-          x: prev.x - (e.deltaX * 0.6),
-          y: prev.y - (e.deltaY * 0.6),
-        }));
+        setPanOffset({
+          x: panOffset.x - (e.deltaX * 0.6),
+          y: panOffset.y - (e.deltaY * 0.6),
+        });
       }
     };
 
@@ -83,15 +79,147 @@ export default function Home() {
     return () => {
       canvas.removeEventListener("wheel", handleWheel);
     };
-  }, [zoom, handleZoomChange]);
-
-  const screens: Screen[] = [
-    { id: "page-1", title: "Home", contentHeight: 4000 },
-    { id: "page-2", title: "About", contentHeight: 3200 },
-    { id: "page-3", title: "Services", contentHeight: 2800 }
-  ];
+  }, [zoom, panOffset, handleZoomChange, setPanOffset]);
 
   const currentDevice = DEVICE_DIMENSIONS[activeDevice];
+  const selectedSectionData = selectedSectionId ? sections[selectedSectionId] : null;
+
+  const renderSectionContent = (sectionId: string) => {
+    const section = sections[sectionId];
+    if (!section) return null;
+
+    if (section.type === 'navbar') {
+      return (
+        <div
+          className="w-full flex items-center justify-between px-8"
+          style={{
+            height: activeDevice === "mobile" ? "60px" : "80px",
+            backgroundColor: sectionId.includes("page-1") ? "#1a1a2e" : "#ffffff",
+          }}
+        >
+          <div
+            className="rounded animate-pulse"
+            style={{
+              width: activeDevice === "mobile" ? "80px" : "120px",
+              height: "24px",
+              backgroundColor: sectionId.includes("page-1") ? "#ffffff30" : "#e5e5e5",
+            }}
+          />
+          <div className="flex gap-4">
+            {[1, 2, 3, 4].map((i) => (
+              <div
+                key={i}
+                className="rounded animate-pulse"
+                style={{
+                  width: activeDevice === "mobile" ? "0" : "60px",
+                  height: "12px",
+                  backgroundColor: sectionId.includes("page-1") ? "#ffffff30" : "#e5e5e5",
+                  display: activeDevice === "mobile" ? "none" : "block",
+                }}
+              />
+            ))}
+            {activeDevice === "mobile" && (
+              <div className="flex flex-col gap-1">
+                <div className="w-5 h-0.5 bg-gray-400 rounded" />
+                <div className="w-5 h-0.5 bg-gray-400 rounded" />
+                <div className="w-5 h-0.5 bg-gray-400 rounded" />
+              </div>
+            )}
+          </div>
+        </div>
+      );
+    }
+
+    if (section.type === 'hero') {
+      return (
+        <div
+          className="w-full bg-gradient-to-br from-[#1a1a2e] to-[#16213e] flex items-center"
+          style={{ height: activeDevice === "mobile" ? "400px" : "600px" }}
+        >
+          <div className="px-8 w-full">
+            <div className="flex gap-8 items-center" style={{ flexDirection: activeDevice === "mobile" ? "column" : "row" }}>
+              <div className="flex-1 w-full">
+                <div className="h-8 bg-white/20 rounded w-3/4 mb-4 animate-pulse" />
+                <div className="h-6 bg-white/20 rounded w-1/2 mb-6 animate-pulse" />
+                <div className="h-4 bg-white/10 rounded w-full mb-2 animate-pulse" />
+                <div className="h-4 bg-white/10 rounded w-5/6 mb-6 animate-pulse" />
+                <div className="flex gap-3">
+                  <div className="h-10 w-32 bg-blue-500 rounded animate-pulse" />
+                  <div className="h-10 w-32 bg-white/20 rounded animate-pulse" />
+                </div>
+              </div>
+              {activeDevice !== "mobile" && (
+                <div className="flex-1 h-80 bg-white/10 rounded-lg animate-pulse" />
+              )}
+            </div>
+          </div>
+        </div>
+      );
+    }
+
+    if (section.type === 'content') {
+      return (
+        <div
+          className="w-full px-8 py-16"
+          style={{ backgroundColor: section.backgroundColor || "#ffffff" }}
+        >
+          <div className="max-w-4xl mx-auto">
+            <div className="h-6 bg-gray-200 rounded w-1/3 mb-3 mx-auto animate-pulse" />
+            <div className="h-4 bg-gray-100 rounded w-2/3 mb-8 mx-auto animate-pulse" />
+            <div
+              className="grid gap-6"
+              style={{
+                gridTemplateColumns: activeDevice === "mobile"
+                  ? "1fr"
+                  : activeDevice === "tablet"
+                    ? "repeat(2, 1fr)"
+                    : "repeat(3, 1fr)"
+              }}
+            >
+              {[1, 2, 3].map((card) => (
+                <div key={card} className="bg-white rounded-lg shadow-sm border border-gray-100 p-6">
+                  <div className="h-32 bg-gray-100 rounded mb-4 animate-pulse" />
+                  <div className="h-4 bg-gray-200 rounded w-3/4 mb-2 animate-pulse" />
+                  <div className="h-3 bg-gray-100 rounded w-full mb-1 animate-pulse" />
+                  <div className="h-3 bg-gray-100 rounded w-5/6 animate-pulse" />
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+      );
+    }
+
+    if (section.type === 'footer') {
+      return (
+        <div className="w-full h-64 bg-[#1a1a2e] px-8 py-12">
+          <div className="flex gap-8" style={{ flexDirection: activeDevice === "mobile" ? "column" : "row" }}>
+            <div className="flex-1">
+              <div className="h-6 bg-white/20 rounded w-32 mb-4 animate-pulse" />
+              <div className="h-3 bg-white/10 rounded w-48 mb-2 animate-pulse" />
+              <div className="h-3 bg-white/10 rounded w-40 animate-pulse" />
+            </div>
+            {activeDevice !== "mobile" && (
+              <>
+                <div className="flex-1">
+                  <div className="h-4 bg-white/20 rounded w-20 mb-3 animate-pulse" />
+                  {[1, 2, 3, 4].map((i) => (
+                    <div key={i} className="h-3 bg-white/10 rounded w-24 mb-2 animate-pulse" />
+                  ))}
+                </div>
+                <div className="flex-1">
+                  <div className="h-4 bg-white/20 rounded w-20 mb-3 animate-pulse" />
+                  {[1, 2, 3].map((i) => (
+                    <div key={i} className="h-3 bg-white/10 rounded w-28 mb-2 animate-pulse" />
+                  ))}
+                </div>
+              </>
+            )}
+          </div>
+        </div>
+      );
+    }
+  };
 
   return (
     <div
@@ -113,167 +241,36 @@ export default function Home() {
           className="flex flex-row"
           style={{
             gap: `${40}px`,
-            marginLeft: `-${(screens.length * (currentDevice.width + 40)) / 2}px`
+            marginLeft: `-${(pages.length * (currentDevice.width + 40)) / 2}px`
           }}
         >
-          {screens.map((screen) => (
-            <div key={screen.id} className="flex flex-col items-center">
+          {pages.map((page) => (
+            <div key={page.id} className="flex flex-col items-center">
               <div
                 className="bg-white rounded-sm overflow-hidden relative shadow-sm"
                 style={{
                   width: `${currentDevice.width}px`,
-                  height: `${screen.contentHeight}px`,
+                  minHeight: "800px",
+                  height: "fit-content",
+                  paddingBottom: "0px"
                 }}
               >
-                <div className="w-full h-full">
-                  <ClickableSection
-                    id={`header-${screen.id}`}
-                    type="navbar"
-                    isSelected={selectedSection?.id === `header-${screen.id}`}
-                    onSelect={handleSectionSelect}
-                  >
-                    <div
-                      className="w-full flex items-center justify-between px-8"
-                      style={{
-                        height: activeDevice === "mobile" ? "60px" : "80px",
-                        backgroundColor: screen.id === "page-1" ? "#1a1a2e" : "#ffffff",
-                      }}
-                    >
-                      <div
-                        className="rounded animate-pulse"
-                        style={{
-                          width: activeDevice === "mobile" ? "80px" : "120px",
-                          height: "24px",
-                          backgroundColor: screen.id === "page-1" ? "#ffffff30" : "#e5e5e5",
-                        }}
-                      />
-                      <div className="flex gap-4">
-                        {[1, 2, 3, 4].map((i) => (
-                          <div
-                            key={i}
-                            className="rounded animate-pulse"
-                            style={{
-                              width: activeDevice === "mobile" ? "0" : "60px",
-                              height: "12px",
-                              backgroundColor: screen.id === "page-1" ? "#ffffff30" : "#e5e5e5",
-                              display: activeDevice === "mobile" ? "none" : "block",
-                            }}
-                          />
-                        ))}
-                        {activeDevice === "mobile" && (
-                          <div className="flex flex-col gap-1">
-                            <div className="w-5 h-0.5 bg-gray-400 rounded" />
-                            <div className="w-5 h-0.5 bg-gray-400 rounded" />
-                            <div className="w-5 h-0.5 bg-gray-400 rounded" />
-                          </div>
-                        )}
-                      </div>
-                    </div>
-                  </ClickableSection>
-
-                  {screen.id === "page-1" && (
-                    <ClickableSection
-                      id={`hero-${screen.id}`}
-                      type="hero"
-                      isSelected={selectedSection?.id === `hero-${screen.id}`}
-                      onSelect={handleSectionSelect}
-                    >
-                      <div
-                        className="w-full bg-gradient-to-br from-[#1a1a2e] to-[#16213e] flex items-center"
-                        style={{ height: activeDevice === "mobile" ? "400px" : "600px" }}
+                <div className="w-full h-full flex flex-col">
+                  {page.sections.map((sectionId) => {
+                    const section = sections[sectionId];
+                    if (!section) return null;
+                    return (
+                      <ClickableSection
+                        key={sectionId}
+                        id={sectionId}
+                        type={section.type}
+                        isSelected={selectedSectionId === sectionId}
+                        onSelect={handleSectionSelect}
                       >
-                        <div className="px-8 w-full">
-                          <div className="flex gap-8 items-center" style={{ flexDirection: activeDevice === "mobile" ? "column" : "row" }}>
-                            <div className="flex-1 w-full">
-                              <div className="h-8 bg-white/20 rounded w-3/4 mb-4 animate-pulse" />
-                              <div className="h-6 bg-white/20 rounded w-1/2 mb-6 animate-pulse" />
-                              <div className="h-4 bg-white/10 rounded w-full mb-2 animate-pulse" />
-                              <div className="h-4 bg-white/10 rounded w-5/6 mb-6 animate-pulse" />
-                              <div className="flex gap-3">
-                                <div className="h-10 w-32 bg-blue-500 rounded animate-pulse" />
-                                <div className="h-10 w-32 bg-white/20 rounded animate-pulse" />
-                              </div>
-                            </div>
-                            {activeDevice !== "mobile" && (
-                              <div className="flex-1 h-80 bg-white/10 rounded-lg animate-pulse" />
-                            )}
-                          </div>
-                        </div>
-                      </div>
-                    </ClickableSection>
-                  )}
-
-                  {[...Array(Math.floor((screen.contentHeight - 800) / 400))].map((_, idx) => (
-                    <ClickableSection
-                      key={idx}
-                      id={`content-${screen.id}-${idx}`}
-                      type="content"
-                      isSelected={selectedSection?.id === `content-${screen.id}-${idx}`}
-                      onSelect={handleSectionSelect}
-                    >
-                      <div
-                        className="w-full px-8 py-16"
-                        style={{ backgroundColor: idx % 2 === 0 ? "#ffffff" : "#f8f8f8" }}
-                      >
-                        <div className="max-w-4xl mx-auto">
-                          <div className="h-6 bg-gray-200 rounded w-1/3 mb-3 mx-auto animate-pulse" />
-                          <div className="h-4 bg-gray-100 rounded w-2/3 mb-8 mx-auto animate-pulse" />
-                          <div
-                            className="grid gap-6"
-                            style={{
-                              gridTemplateColumns: activeDevice === "mobile"
-                                ? "1fr"
-                                : activeDevice === "tablet"
-                                  ? "repeat(2, 1fr)"
-                                  : "repeat(3, 1fr)"
-                            }}
-                          >
-                            {[1, 2, 3].map((card) => (
-                              <div key={card} className="bg-white rounded-lg shadow-sm border border-gray-100 p-6">
-                                <div className="h-32 bg-gray-100 rounded mb-4 animate-pulse" />
-                                <div className="h-4 bg-gray-200 rounded w-3/4 mb-2 animate-pulse" />
-                                <div className="h-3 bg-gray-100 rounded w-full mb-1 animate-pulse" />
-                                <div className="h-3 bg-gray-100 rounded w-5/6 animate-pulse" />
-                              </div>
-                            ))}
-                          </div>
-                        </div>
-                      </div>
-                    </ClickableSection>
-                  ))}
-
-                  <ClickableSection
-                    id={`footer-${screen.id}`}
-                    type="footer"
-                    isSelected={selectedSection?.id === `footer-${screen.id}`}
-                    onSelect={handleSectionSelect}
-                  >
-                    <div className="w-full h-64 bg-[#1a1a2e] px-8 py-12">
-                      <div className="flex gap-8" style={{ flexDirection: activeDevice === "mobile" ? "column" : "row" }}>
-                        <div className="flex-1">
-                          <div className="h-6 bg-white/20 rounded w-32 mb-4 animate-pulse" />
-                          <div className="h-3 bg-white/10 rounded w-48 mb-2 animate-pulse" />
-                          <div className="h-3 bg-white/10 rounded w-40 animate-pulse" />
-                        </div>
-                        {activeDevice !== "mobile" && (
-                          <>
-                            <div className="flex-1">
-                              <div className="h-4 bg-white/20 rounded w-20 mb-3 animate-pulse" />
-                              {[1, 2, 3, 4].map((i) => (
-                                <div key={i} className="h-3 bg-white/10 rounded w-24 mb-2 animate-pulse" />
-                              ))}
-                            </div>
-                            <div className="flex-1">
-                              <div className="h-4 bg-white/20 rounded w-20 mb-3 animate-pulse" />
-                              {[1, 2, 3].map((i) => (
-                                <div key={i} className="h-3 bg-white/10 rounded w-28 mb-2 animate-pulse" />
-                              ))}
-                            </div>
-                          </>
-                        )}
-                      </div>
-                    </div>
-                  </ClickableSection>
+                        {renderSectionContent(sectionId)}
+                      </ClickableSection>
+                    );
+                  })}
                 </div>
               </div>
             </div>
@@ -295,9 +292,11 @@ export default function Home() {
       </div>
 
       <SectionCustomizePopup
-        isOpen={!!selectedSection}
-        selectedSectionType={selectedSection?.type || null}
+        key={selectedSectionId || 'popup'}
+        isOpen={!!selectedSectionId}
+        section={selectedSectionData || null}
         onLayoutSelect={handleLayoutSelect}
+        onUpdate={handleUpdateSection}
         onClose={() => setSelectedSection(null)}
       />
 

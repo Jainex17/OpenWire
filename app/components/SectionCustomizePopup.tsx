@@ -1,12 +1,14 @@
 "use client";
 
-import { useState, useEffect } from "react";
-import { type SectionType, SECTION_LAYOUTS } from "../lib/sectionLayouts";
+import { useState } from "react";
+import { SECTION_LAYOUTS } from "../lib/sectionLayouts";
+import { type SectionData } from "../store/useEditorStore";
 
 interface SectionCustomizePopupProps {
     isOpen: boolean;
-    selectedSectionType: SectionType | null;
+    section: SectionData | null;
     onLayoutSelect: (layoutId: string) => void;
+    onUpdate: (data: Partial<SectionData>) => void;
     onClose: () => void;
 }
 
@@ -21,25 +23,36 @@ const COLOR_SCHEMES = [
 
 export default function SectionCustomizePopup({
     isOpen,
-    selectedSectionType,
+    section,
     onLayoutSelect,
+    onUpdate,
     onClose,
 }: SectionCustomizePopupProps) {
     const [view, setView] = useState<ViewState>("main");
-    const [name, setName] = useState("");
-    const [description, setDescription] = useState("");
 
-    useEffect(() => {
+    const initialName = section?.name || (section?.type ? section.type.charAt(0).toUpperCase() + section.type.slice(1) : "");
+    const [name, setName] = useState(initialName);
+    const [description, setDescription] = useState(section?.content?.description as string || "");
+
+    const handleNameChange = (val: string) => {
+        setName(val);
+        onUpdate({ name: val });
+    };
+
+    const handleDescriptionChange = (val: string) => {
+        setDescription(val);
+        onUpdate({ content: { ...section?.content, description: val } });
+    };
+
+    const handleSchemeSelect = (color: string) => {
+        onUpdate({ backgroundColor: color });
         setView("main");
-        if (selectedSectionType) {
-            setName(selectedSectionType.charAt(0).toUpperCase() + selectedSectionType.slice(1));
-            setDescription(`Enter a description for this ${selectedSectionType} section...`);
-        }
-    }, [isOpen, selectedSectionType]);
+    };
 
-    if (!isOpen || !selectedSectionType) return null;
+    if (!isOpen || !section) return null;
 
-    const layouts = SECTION_LAYOUTS[selectedSectionType];
+    const layouts = SECTION_LAYOUTS[section.type];
+    const selectedSectionType = section.type;
 
     return (
         <div
@@ -81,7 +94,7 @@ export default function SectionCustomizePopup({
                                 <input
                                     type="text"
                                     value={name}
-                                    onChange={(e) => setName(e.target.value)}
+                                    onChange={(e) => handleNameChange(e.target.value)}
                                     className="w-full px-3 py-2 bg-white border border-[#e0d9ce] rounded text-sm text-[#3d3529] focus:outline-none focus:ring-2 focus:ring-blue-100 focus:border-blue-400 transition-all font-medium"
                                 />
                             </div>
@@ -90,7 +103,7 @@ export default function SectionCustomizePopup({
                                 <label className="text-xs font-medium text-[#8c8377] uppercase tracking-wide">Description</label>
                                 <textarea
                                     value={description}
-                                    onChange={(e) => setDescription(e.target.value)}
+                                    onChange={(e) => handleDescriptionChange(e.target.value)}
                                     rows={3}
                                     className="w-full px-3 py-2 bg-white border border-[#e0d9ce] rounded text-sm text-[#5c5347] focus:outline-none focus:ring-2 focus:ring-blue-100 focus:border-blue-400 transition-all resize-none"
                                 />
@@ -144,6 +157,7 @@ export default function SectionCustomizePopup({
                             {COLOR_SCHEMES.map((scheme) => (
                                 <button
                                     key={scheme.id}
+                                    onClick={() => handleSchemeSelect(scheme.colors[0])}
                                     className="flex items-center gap-3 p-3 text-left rounded border border-[#e8e2d9] hover:border-blue-400 hover:bg-blue-50 transition-all group"
                                 >
                                     <div className="flex flex-col gap-1">
