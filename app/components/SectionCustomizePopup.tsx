@@ -9,6 +9,10 @@ interface SectionCustomizePopupProps {
     section: SectionData | null;
     onLayoutSelect: (layoutId: string) => void;
     onUpdate: (data: Partial<SectionData>) => void;
+    onMoveUp: () => void;
+    onMoveDown: () => void;
+    canMoveUp: boolean;
+    canMoveDown: boolean;
     onClose: () => void;
 }
 
@@ -26,6 +30,10 @@ export default function SectionCustomizePopup({
     section,
     onLayoutSelect,
     onUpdate,
+    onMoveUp,
+    onMoveDown,
+    canMoveUp,
+    canMoveDown,
     onClose,
 }: SectionCustomizePopupProps) {
     const [view, setView] = useState<ViewState>("main");
@@ -129,6 +137,29 @@ export default function SectionCustomizePopup({
                                         <div className="w-3 h-3 rounded-full bg-purple-500 border border-white" />
                                     </div>
                                     <span className="text-sm font-medium">Scheme</span>
+                                </button>
+                            </div>
+
+                            <div className="flex gap-3 mt-2">
+                                <button
+                                    onClick={onMoveUp}
+                                    disabled={!canMoveUp}
+                                    className="flex-1 flex items-center justify-center gap-2 px-4 py-2 bg-white border border-[#e0d9ce] rounded hover:border-blue-400 hover:text-blue-600 transition-all group disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:border-[#e0d9ce] disabled:hover:text-inherit"
+                                >
+                                    <svg className="w-4 h-4 text-[#8c8377] group-hover:text-blue-500 group-disabled:group-hover:text-[#8c8377]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 15l7-7 7 7" />
+                                    </svg>
+                                    <span className="text-sm font-medium">Move Up</span>
+                                </button>
+                                <button
+                                    onClick={onMoveDown}
+                                    disabled={!canMoveDown}
+                                    className="flex-1 flex items-center justify-center gap-2 px-4 py-2 bg-white border border-[#e0d9ce] rounded hover:border-blue-400 hover:text-blue-600 transition-all group disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:border-[#e0d9ce] disabled:hover:text-inherit"
+                                >
+                                    <svg className="w-4 h-4 text-[#8c8377] group-hover:text-blue-500 group-disabled:group-hover:text-[#8c8377]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                                    </svg>
+                                    <span className="text-sm font-medium">Move Down</span>
                                 </button>
                             </div>
                         </div>

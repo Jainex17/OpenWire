@@ -30,6 +30,7 @@ export interface ProjectState {
     pages: PageData[];
     sections: Record<string, SectionData>;
     selectedSectionId: string | null;
+    draggingSectionId: string | null;
 }
 
 export interface EditorState extends CanvasState, ProjectState {
@@ -37,17 +38,18 @@ export interface EditorState extends CanvasState, ProjectState {
     setPanOffset: (offset: { x: number; y: number }) => void;
     setActiveDevice: (device: DeviceType) => void;
     setSelectedSection: (id: string | null) => void;
+    setDraggingSection: (id: string | null) => void;
     updateSectionLayout: (sectionId: string, layoutId: string) => void;
     updateSectionData: (sectionId: string, data: Partial<SectionData>) => void;
     addSection: (pageId: string, section: SectionData, index?: number) => void;
     removeSection: (pageId: string, sectionId: string) => void;
+    moveSection: (pageId: string, sectionId: string, direction: 'up' | 'down') => void;
+    reorderSection: (pageId: string, sectionId: string, newIndex: number) => void;
 }
 
-const generateInitialState = (): Pick<ProjectState, 'pages' | 'sections' | 'selectedSectionId'> => {
+const generateInitialState = (): Pick<ProjectState, 'pages' | 'sections' | 'selectedSectionId' | 'draggingSectionId'> => {
     const pages: PageData[] = [
         { id: "page-1", title: "Home", sections: [] },
-        { id: "page-2", title: "About", sections: [] },
-        { id: "page-3", title: "Services", sections: [] },
     ];
 
     const sections: Record<string, SectionData> = {};
@@ -82,7 +84,7 @@ const generateInitialState = (): Pick<ProjectState, 'pages' | 'sections' | 'sele
         page.sections.push(footerId);
     });
 
-    return { pages, sections, selectedSectionId: null };
+    return { pages, sections, selectedSectionId: null, draggingSectionId: null };
 };
 
 const DEFAULT_CANVAS_STATE = {
@@ -102,6 +104,7 @@ export const useEditorStore = create<EditorState>()(
             setPanOffset: (panOffset) => set({ panOffset }),
             setActiveDevice: (activeDevice) => set({ activeDevice }),
             setSelectedSection: (selectedSectionId) => set({ selectedSectionId }),
+            setDraggingSection: (draggingSectionId) => set({ draggingSectionId }),
 
             updateSectionLayout: (sectionId, layoutId) => set((state) => ({
                 sections: {
@@ -155,6 +158,46 @@ export const useEditorStore = create<EditorState>()(
                     pages: newPages,
                     sections: newSections
                 };
+            }),
+
+            moveSection: (pageId, sectionId, direction) => set((state) => {
+                const pageIndex = state.pages.findIndex(p => p.id === pageId);
+                if (pageIndex === -1) return state;
+
+                const sections = [...state.pages[pageIndex].sections];
+                const currentIndex = sections.indexOf(sectionId);
+                if (currentIndex === -1) return state;
+
+                const newIndex = direction === 'up' ? currentIndex - 1 : currentIndex + 1;
+                if (newIndex < 0 || newIndex >= sections.length) return state;
+
+                // Swap the sections
+                [sections[currentIndex], sections[newIndex]] = [sections[newIndex], sections[currentIndex]];
+
+                const newPages = [...state.pages];
+                newPages[pageIndex] = { ...newPages[pageIndex], sections };
+
+                return { pages: newPages };
+            }),
+
+            reorderSection: (pageId, sectionId, newIndex) => set((state) => {
+                const pageIndex = state.pages.findIndex(p => p.id === pageId);
+                if (pageIndex === -1) return state;
+
+                const sections = [...state.pages[pageIndex].sections];
+                const currentIndex = sections.indexOf(sectionId);
+                if (currentIndex === -1) return state;
+                if (currentIndex === newIndex) return state;
+
+                // Remove from current position
+                sections.splice(currentIndex, 1);
+                // Insert at new position
+                sections.splice(newIndex, 0, sectionId);
+
+                const newPages = [...state.pages];
+                newPages[pageIndex] = { ...newPages[pageIndex], sections };
+
+                return { pages: newPages };
             }),
         }),
         {

@@ -1,6 +1,23 @@
 "use client";
 
-import { useEffect, useRef, useCallback } from "react";
+import { useEffect, useRef, useCallback, useState } from "react";
+import {
+  DndContext,
+  closestCenter,
+  PointerSensor,
+  useSensor,
+  useSensors,
+  DragEndEvent,
+  DragStartEvent,
+  DragOverEvent,
+  DragOverlay,
+  defaultDropAnimationSideEffects,
+  type DropAnimation,
+} from "@dnd-kit/core";
+import {
+  SortableContext,
+  verticalListSortingStrategy,
+} from "@dnd-kit/sortable";
 import CanvasToolbar from "./components/CanvasToolbar";
 import ClickableSection from "./components/ClickableSection";
 import SectionCustomizePopup from "./components/SectionCustomizePopup";
@@ -12,18 +29,43 @@ const DEVICE_DIMENSIONS = {
   mobile: { width: 375, height: 812, label: "Mobile" },
 } as const;
 
+const dropAnimation: DropAnimation = {
+  sideEffects: defaultDropAnimationSideEffects({
+    styles: {
+      active: {
+        opacity: "0.5",
+      },
+    },
+  }),
+  duration: 250,
+  easing: "cubic-bezier(0.25, 1, 0.5, 1)",
+};
+
 export default function Home() {
   const canvasRef = useRef<HTMLDivElement>(null);
+  const [activeDragId, setActiveDragId] = useState<string | null>(null);
+  const [activeDragPageId, setActiveDragPageId] = useState<string | null>(null);
+  const [overSectionId, setOverSectionId] = useState<string | null>(null);
+  const [dragDimensions, setDragDimensions] = useState<{ width: number; height: number } | null>(null);
+  const [draggedSectionHeight, setDraggedSectionHeight] = useState<number | null>(null);
 
   const {
     zoom, panOffset, activeDevice,
     pages, sections, selectedSectionId,
     setZoom, setPanOffset, setActiveDevice, setSelectedSection,
-    updateSectionLayout, updateSectionData
+    updateSectionLayout, updateSectionData, moveSection, reorderSection
   } = useEditorStore();
 
   const MIN_ZOOM = 5;
   const MAX_ZOOM = 200;
+
+  const sensors = useSensors(
+    useSensor(PointerSensor, {
+      activationConstraint: {
+        distance: 5,
+      },
+    })
+  );
 
   const handleZoomChange = useCallback((newZoom: number) => {
     setZoom(Math.min(Math.max(newZoom, MIN_ZOOM), MAX_ZOOM));
@@ -52,6 +94,61 @@ export default function Home() {
 
   const handleCanvasClick = () => {
     setSelectedSection(null);
+  };
+
+  const handleDragStart = (event: DragStartEvent) => {
+    const { active } = event;
+    const sectionId = active.id as string;
+    setActiveDragId(sectionId);
+
+    // Find which page contains this section
+    for (const page of pages) {
+      if (page.sections.includes(sectionId)) {
+        setActiveDragPageId(page.id);
+        break;
+      }
+    }
+
+    // Capture the visual dimensions (already scaled by zoom)
+    if (active.rect.current.initial) {
+      const scaledHeight = active.rect.current.initial.height;
+      // Convert scaled height back to unscaled height
+      const unscaledHeight = scaledHeight / (zoom / 100);
+
+      setDragDimensions({
+        width: active.rect.current.initial.width,
+        height: scaledHeight,
+      });
+      setDraggedSectionHeight(unscaledHeight);
+    }
+  };
+
+  const handleDragOver = (event: DragOverEvent) => {
+    const { over } = event;
+    setOverSectionId(over?.id as string | null);
+  };
+
+  const handleDragEnd = (event: DragEndEvent) => {
+    const { active, over } = event;
+    const pageId = activeDragPageId;
+
+    setActiveDragId(null);
+    setActiveDragPageId(null);
+    setOverSectionId(null);
+    setDragDimensions(null);
+    setDraggedSectionHeight(null);
+
+    if (over && active.id !== over.id && pageId) {
+      const page = pages.find(p => p.id === pageId);
+      if (!page) return;
+
+      const oldIndex = page.sections.indexOf(active.id as string);
+      const newIndex = page.sections.indexOf(over.id as string);
+
+      if (oldIndex !== -1 && newIndex !== -1) {
+        reorderSection(pageId, active.id as string, newIndex);
+      }
+    }
   };
 
   useEffect(() => {
@@ -83,6 +180,34 @@ export default function Home() {
 
   const currentDevice = DEVICE_DIMENSIONS[activeDevice];
   const selectedSectionData = selectedSectionId ? sections[selectedSectionId] : null;
+
+  // Find which page contains the selected section and its position
+  const selectedSectionInfo = selectedSectionId ? (() => {
+    for (const page of pages) {
+      const index = page.sections.indexOf(selectedSectionId);
+      if (index !== -1) {
+        return {
+          pageId: page.id,
+          index,
+          canMoveUp: index > 0,
+          canMoveDown: index < page.sections.length - 1
+        };
+      }
+    }
+    return null;
+  })() : null;
+
+  const handleMoveUp = () => {
+    if (selectedSectionId && selectedSectionInfo) {
+      moveSection(selectedSectionInfo.pageId, selectedSectionId, 'up');
+    }
+  };
+
+  const handleMoveDown = () => {
+    if (selectedSectionId && selectedSectionInfo) {
+      moveSection(selectedSectionInfo.pageId, selectedSectionId, 'down');
+    }
+  };
 
   const renderSectionContent = (sectionId: string) => {
     const section = sections[sectionId];
@@ -222,6 +347,13 @@ export default function Home() {
   };
 
   return (
+    <DndContext
+      sensors={sensors}
+      collisionDetection={closestCenter}
+      onDragStart={handleDragStart}
+      onDragOver={handleDragOver}
+      onDragEnd={handleDragEnd}
+    >
     <div
       ref={canvasRef}
       className="relative w-screen h-screen bg-[#f5f0e8] overflow-hidden select-none"
@@ -247,36 +379,60 @@ export default function Home() {
           {pages.map((page) => (
             <div key={page.id} className="flex flex-col items-center">
               <div
-                className="bg-white rounded-sm overflow-hidden relative shadow-sm"
+                className="bg-white rounded-sm relative shadow-sm"
                 style={{
                   width: `${currentDevice.width}px`,
                   minHeight: "800px",
                   height: "fit-content",
-                  paddingBottom: "0px"
+                  paddingBottom: "0px",
+                  overflow: "visible"
                 }}
               >
-                <div className="w-full h-full flex flex-col">
-                  {page.sections.map((sectionId) => {
-                    const section = sections[sectionId];
-                    if (!section) return null;
-                    return (
-                      <ClickableSection
-                        key={sectionId}
-                        id={sectionId}
-                        type={section.type}
-                        isSelected={selectedSectionId === sectionId}
-                        onSelect={handleSectionSelect}
-                      >
-                        {renderSectionContent(sectionId)}
-                      </ClickableSection>
-                    );
-                  })}
-                </div>
+                <SortableContext
+                  items={page.sections}
+                  strategy={verticalListSortingStrategy}
+                >
+                  <div className="w-full h-full flex flex-col overflow-visible">
+                    {page.sections.map((sectionId) => {
+                      const section = sections[sectionId];
+                      if (!section) return null;
+                      return (
+                        <ClickableSection
+                          key={sectionId}
+                          id={sectionId}
+                          type={section.type}
+                          isSelected={selectedSectionId === sectionId}
+                          isDropTarget={overSectionId === sectionId && activeDragId !== sectionId}
+                          draggedHeight={draggedSectionHeight}
+                          onSelect={handleSectionSelect}
+                        >
+                          {renderSectionContent(sectionId)}
+                        </ClickableSection>
+                      );
+                    })}
+                  </div>
+                </SortableContext>
               </div>
             </div>
           ))}
         </div>
       </div>
+
+      <DragOverlay dropAnimation={dropAnimation}>
+        {activeDragId ? (
+          <div
+            style={{
+              width: currentDevice.width,
+              overflow: 'hidden',
+              transform: `scale(${zoom / 100})`,
+              transformOrigin: 'top left',
+            }}
+            className="shadow-2xl ring-2 ring-blue-500 rounded-lg bg-white cursor-grabbing"
+          >
+            {renderSectionContent(activeDragId)}
+          </div>
+        ) : null}
+      </DragOverlay>
 
       <div className="fixed left-4 top-4 flex flex-col gap-2">
         <button className="w-10 h-10 bg-white hover:bg-[#ebe5dc] rounded-lg flex items-center justify-center text-[#5c5347] hover:text-[#3d3529] transition-colors shadow-sm border border-[#e0d9ce]">
@@ -297,6 +453,10 @@ export default function Home() {
         section={selectedSectionData || null}
         onLayoutSelect={handleLayoutSelect}
         onUpdate={handleUpdateSection}
+        onMoveUp={handleMoveUp}
+        onMoveDown={handleMoveDown}
+        canMoveUp={selectedSectionInfo?.canMoveUp ?? false}
+        canMoveDown={selectedSectionInfo?.canMoveDown ?? false}
         onClose={() => setSelectedSection(null)}
       />
 
@@ -308,5 +468,6 @@ export default function Home() {
         onReset={handleReset}
       />
     </div>
+    </DndContext>
   );
 }
