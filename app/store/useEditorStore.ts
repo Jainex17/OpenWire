@@ -63,21 +63,32 @@ const generateInitialState = (): Pick<ProjectState, 'pages' | 'sections' | 'sele
             const heroId = `hero-${page.id}`;
             sections[heroId] = { id: heroId, type: 'hero', layoutId: 'hero-1', content: {} };
             page.sections.push(heroId);
-        }
 
-        const contentCount = page.id === 'page-1' ? 8 : (page.id === 'page-2' ? 6 : 5);
+            const featuresId = `features-${page.id}`;
+            sections[featuresId] = { id: featuresId, type: 'features', layoutId: 'features-1', backgroundColor: '#ffffff', content: {} };
+            page.sections.push(featuresId);
 
-        for (let i = 0; i < contentCount; i++) {
-            const contentId = `content-${page.id}-${i}`;
-            sections[contentId] = {
-                id: contentId,
-                type: 'content',
-                layoutId: 'content-1',
-                backgroundColor: i % 2 === 0 ? "#ffffff" : "#f8f8f8",
-                content: {}
-            };
+            const contentId = `content-${page.id}`;
+            sections[contentId] = { id: contentId, type: 'content', layoutId: 'content-1', backgroundColor: '#f9fafb', content: {} };
+            page.sections.push(contentId);
+
+            const testimonialsId = `testimonials-${page.id}`;
+            sections[testimonialsId] = { id: testimonialsId, type: 'testimonials', layoutId: 'testimonials-1', backgroundColor: '#ffffff', content: {} };
+            page.sections.push(testimonialsId);
+
+            const pricingId = `pricing-${page.id}`;
+            sections[pricingId] = { id: pricingId, type: 'pricing', layoutId: 'pricing-1', backgroundColor: '#f9fafb', content: {} };
+            page.sections.push(pricingId);
+
+            const ctaId = `cta-${page.id}`;
+            sections[ctaId] = { id: ctaId, type: 'cta', layoutId: 'cta-1', backgroundColor: '#1a1a2e', content: {} };
+            page.sections.push(ctaId);
+        } else {
+            const contentId = `content-${page.id}`;
+            sections[contentId] = { id: contentId, type: 'content', layoutId: 'content-1', backgroundColor: "#ffffff", content: {} };
             page.sections.push(contentId);
         }
+
 
         const footerId = `footer-${page.id}`;
         sections[footerId] = { id: footerId, type: 'footer', layoutId: 'footer-1', content: {} };
@@ -171,7 +182,6 @@ export const useEditorStore = create<EditorState>()(
                 const newIndex = direction === 'up' ? currentIndex - 1 : currentIndex + 1;
                 if (newIndex < 0 || newIndex >= sections.length) return state;
 
-                // Swap the sections
                 [sections[currentIndex], sections[newIndex]] = [sections[newIndex], sections[currentIndex]];
 
                 const newPages = [...state.pages];
@@ -189,9 +199,7 @@ export const useEditorStore = create<EditorState>()(
                 if (currentIndex === -1) return state;
                 if (currentIndex === newIndex) return state;
 
-                // Remove from current position
                 sections.splice(currentIndex, 1);
-                // Insert at new position
                 sections.splice(newIndex, 0, sectionId);
 
                 const newPages = [...state.pages];
@@ -205,7 +213,6 @@ export const useEditorStore = create<EditorState>()(
             storage: createJSONStorage(() => localStorage),
             partialize: (state) => ({
                 pages: state.pages,
-                sections: state.sections,
             })
         }
     )

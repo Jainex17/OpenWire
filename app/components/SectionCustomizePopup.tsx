@@ -64,7 +64,7 @@ export default function SectionCustomizePopup({
 
     return (
         <div
-            className="fixed left-20 top-4 z-50 animate-in fade-in slide-in-from-left-4 duration-200 select-text cursor-default"
+            className="fixed left-[4.5rem] top-4 z-50 animate-in fade-in slide-in-from-left-4 duration-200 select-text cursor-default"
             onClick={(e) => e.stopPropagation()}
         >
             <div className="bg-white rounded-lg shadow-xl border border-[#e0d9ce] overflow-hidden w-[280px] flex flex-col">
@@ -73,7 +73,7 @@ export default function SectionCustomizePopup({
                         {view !== "main" && (
                             <button
                                 onClick={() => setView("main")}
-                                className="text-[#8c8377] hover:text-[#3d3529] p-1 rounded hover:bg-black/5 transition-colors"
+                                className="text-[#5c5347] hover:text-[#3d3529] p-1 rounded hover:bg-[#f5f0e8] transition-colors"
                             >
                                 <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
@@ -86,7 +86,7 @@ export default function SectionCustomizePopup({
                     </div>
                     <button
                         onClick={onClose}
-                        className="text-[#8c8377] hover:text-[#5c5347] transition-colors"
+                        className="text-[#5c5347] hover:text-[#3d3529] transition-colors"
                     >
                         <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
@@ -175,10 +175,10 @@ export default function SectionCustomizePopup({
                                         <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><rect x="4" y="4" width="16" height="16" rx="2" strokeWidth={1.5} /></svg>
                                     </div>
                                     <div>
-                                        <div className="text-sm font-medium text-[#3d3529] group-hover:text-blue-700">
+                                        <div className="text-sm font-medium text-[#5c5347] group-hover:text-[#3d3529]">
                                             {layout.name}
                                         </div>
-                                        <div className="text-xs text-[#8c8377] mt-0.5">Click to apply</div>
+                                        <div className="text-xs text-[#a89f91] mt-0.5">Click to apply</div>
                                     </div>
                                 </button>
                             ))}
@@ -198,7 +198,7 @@ export default function SectionCustomizePopup({
                                             ))}
                                         </div>
                                     </div>
-                                    <span className="text-sm font-medium text-[#3d3529] ml-auto group-hover:text-blue-700">
+                                    <span className="text-sm font-medium text-[#5c5347] ml-auto group-hover:text-[#3d3529]">
                                         {scheme.name}
                                     </span>
                                 </button>

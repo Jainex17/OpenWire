@@ -43,11 +43,16 @@ const dropAnimation: DropAnimation = {
 
 export default function Home() {
   const canvasRef = useRef<HTMLDivElement>(null);
+  const sectionHeightsRef = useRef<Map<string, number>>(new Map());
   const [activeDragId, setActiveDragId] = useState<string | null>(null);
   const [activeDragPageId, setActiveDragPageId] = useState<string | null>(null);
   const [overSectionId, setOverSectionId] = useState<string | null>(null);
   const [dragDimensions, setDragDimensions] = useState<{ width: number; height: number } | null>(null);
   const [draggedSectionHeight, setDraggedSectionHeight] = useState<number | null>(null);
+
+  const captureSectionHeight = useCallback((id: string, height: number) => {
+    sectionHeightsRef.current.set(id, height);
+  }, []);
 
   const {
     zoom, panOffset, activeDevice,
@@ -101,7 +106,6 @@ export default function Home() {
     const sectionId = active.id as string;
     setActiveDragId(sectionId);
 
-    // Find which page contains this section
     for (const page of pages) {
       if (page.sections.includes(sectionId)) {
         setActiveDragPageId(page.id);
@@ -109,23 +113,23 @@ export default function Home() {
       }
     }
 
-    // Capture the visual dimensions (already scaled by zoom)
-    if (active.rect.current.initial) {
-      const scaledHeight = active.rect.current.initial.height;
-      // Convert scaled height back to unscaled height
-      const unscaledHeight = scaledHeight / (zoom / 100);
+    const storedHeight = sectionHeightsRef.current.get(sectionId);
+    if (storedHeight) {
+      setDraggedSectionHeight(storedHeight);
+    }
 
+    if (active.rect.current.initial) {
       setDragDimensions({
         width: active.rect.current.initial.width,
-        height: scaledHeight,
+        height: active.rect.current.initial.height,
       });
-      setDraggedSectionHeight(unscaledHeight);
     }
   };
 
   const handleDragOver = (event: DragOverEvent) => {
     const { over } = event;
-    setOverSectionId(over?.id as string | null);
+    const overId = over?.id as string | null;
+    setOverSectionId(overId);
   };
 
   const handleDragEnd = (event: DragEndEvent) => {
@@ -181,7 +185,6 @@ export default function Home() {
   const currentDevice = DEVICE_DIMENSIONS[activeDevice];
   const selectedSectionData = selectedSectionId ? sections[selectedSectionId] : null;
 
-  // Find which page contains the selected section and its position
   const selectedSectionInfo = selectedSectionId ? (() => {
     for (const page of pages) {
       const index = page.sections.indexOf(selectedSectionId);
@@ -216,39 +219,39 @@ export default function Home() {
     if (section.type === 'navbar') {
       return (
         <div
-          className="w-full flex items-center justify-between px-8"
+          className="w-full flex items-center justify-between px-8 backdrop-blur-md bg-opacity-90 sticky top-0 z-50 transition-all duration-300"
           style={{
             height: activeDevice === "mobile" ? "60px" : "80px",
-            backgroundColor: sectionId.includes("page-1") ? "#1a1a2e" : "#ffffff",
+            backgroundColor: sectionId.includes("page-1") ? "rgba(26, 26, 46, 0.95)" : "rgba(255, 255, 255, 0.95)",
+            borderBottom: sectionId.includes("page-1") ? "1px solid rgba(255,255,255,0.1)" : "1px solid rgba(0,0,0,0.05)"
           }}
         >
-          <div
-            className="rounded animate-pulse"
-            style={{
-              width: activeDevice === "mobile" ? "80px" : "120px",
-              height: "24px",
-              backgroundColor: sectionId.includes("page-1") ? "#ffffff30" : "#e5e5e5",
-            }}
-          />
-          <div className="flex gap-4">
-            {[1, 2, 3, 4].map((i) => (
-              <div
-                key={i}
-                className="rounded animate-pulse"
-                style={{
-                  width: activeDevice === "mobile" ? "0" : "60px",
-                  height: "12px",
-                  backgroundColor: sectionId.includes("page-1") ? "#ffffff30" : "#e5e5e5",
-                  display: activeDevice === "mobile" ? "none" : "block",
-                }}
-              />
-            ))}
-            {activeDevice === "mobile" && (
-              <div className="flex flex-col gap-1">
-                <div className="w-5 h-0.5 bg-gray-400 rounded" />
-                <div className="w-5 h-0.5 bg-gray-400 rounded" />
-                <div className="w-5 h-0.5 bg-gray-400 rounded" />
+          <div className="font-bold text-xl tracking-tight flex items-center gap-2" style={{ color: sectionId.includes("page-1") ? "#fff" : "#1a1a2e" }}>
+            <div className={`w-8 h-8 rounded-lg flex items-center justify-center ${sectionId.includes("page-1") ? "bg-blue-600" : "bg-blue-600"}`}>
+              <span className="text-white font-bold">O</span>
+            </div>
+            <span>OpenWire</span>
+          </div>
+
+          <div className="flex gap-8 items-center">
+            {activeDevice !== "mobile" && (
+              ["Product", "Solutions", "Resources", "Pricing"].map((item) => (
+                <span key={item} className="text-sm font-medium cursor-pointer hover:opacity-80 transition-opacity" style={{ color: sectionId.includes("page-1") ? "#ccc" : "#4b5563" }}>
+                  {item}
+                </span>
+              ))
+            )}
+
+            {activeDevice === "mobile" ? (
+              <div className="flex flex-col gap-1.5 cursor-pointer">
+                <span className={`w-6 h-0.5 rounded-full ${sectionId.includes("page-1") ? "bg-white" : "bg-gray-800"}`}></span>
+                <span className={`w-6 h-0.5 rounded-full ${sectionId.includes("page-1") ? "bg-white" : "bg-gray-800"}`}></span>
+                <span className={`w-6 h-0.5 rounded-full ${sectionId.includes("page-1") ? "bg-white" : "bg-gray-800"}`}></span>
               </div>
+            ) : (
+              <button className="px-5 py-2 rounded-full text-sm font-medium bg-blue-600 text-white hover:bg-blue-700 transition-colors shadow-lg shadow-blue-500/20">
+                Get Started
+              </button>
             )}
           </div>
         </div>
@@ -258,24 +261,76 @@ export default function Home() {
     if (section.type === 'hero') {
       return (
         <div
-          className="w-full bg-gradient-to-br from-[#1a1a2e] to-[#16213e] flex items-center"
-          style={{ height: activeDevice === "mobile" ? "400px" : "600px" }}
+          className="w-full relative overflow-hidden flex items-center bg-[#111827]"
+          style={{
+            height: activeDevice === "mobile" ? "500px" : "700px"
+          }}
         >
-          <div className="px-8 w-full">
-            <div className="flex gap-8 items-center" style={{ flexDirection: activeDevice === "mobile" ? "column" : "row" }}>
-              <div className="flex-1 w-full">
-                <div className="h-8 bg-white/20 rounded w-3/4 mb-4 animate-pulse" />
-                <div className="h-6 bg-white/20 rounded w-1/2 mb-6 animate-pulse" />
-                <div className="h-4 bg-white/10 rounded w-full mb-2 animate-pulse" />
-                <div className="h-4 bg-white/10 rounded w-5/6 mb-6 animate-pulse" />
-                <div className="flex gap-3">
-                  <div className="h-10 w-32 bg-blue-500 rounded animate-pulse" />
-                  <div className="h-10 w-32 bg-white/20 rounded animate-pulse" />
+          <div className="px-8 w-full relative z-10 max-w-7xl mx-auto">
+            <div className="flex gap-12 items-center" style={{ flexDirection: activeDevice === "mobile" ? "column" : "row" }}>
+              <div className="flex-1 w-full flex flex-col items-start text-left">
+                <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-blue-900/30 border border-blue-800 text-blue-400 text-xs font-semibold mb-6">
+                  <span className="w-2 h-2 rounded-full bg-blue-400 animate-pulse"></span>
+                  v2.0 is now live
+                </div>
+                <h1 className="text-4xl md:text-6xl font-extrabold tracking-tight text-white mb-6 leading-tight">
+                  Build faster with <span className="text-blue-500">Intelligent Blocks</span>
+                </h1>
+                <p className="text-lg text-gray-400 mb-8 max-w-xl leading-relaxed">
+                  Create stunning websites in minutes using our intuitive drag-and-drop editor. No coding required, just pure creativity.
+                </p>
+                <div className="flex gap-4 w-full md:w-auto">
+                  <button className="flex-1 md:flex-none px-8 py-3.5 rounded-xl bg-blue-600 text-white font-semibold hover:bg-blue-700 transition-all">
+                    Start Building
+                  </button>
+                  <button className="flex-1 md:flex-none px-8 py-3.5 rounded-xl bg-gray-800 text-white font-semibold border border-gray-700 hover:bg-gray-700 transition-all">
+                    View Demo
+                  </button>
                 </div>
               </div>
               {activeDevice !== "mobile" && (
-                <div className="flex-1 h-80 bg-white/10 rounded-lg animate-pulse" />
+                <div className="flex-1 relative">
+                  <div className="relative z-10 rounded-2xl overflow-hidden shadow-2xl border border-gray-800 bg-gray-900 p-2">
+                    <div className="rounded-xl overflow-hidden bg-gray-800 aspect-[4/3] flex flex-col items-center justify-center gap-3">
+                      <svg className="w-16 h-16 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                      </svg>
+                      <span className="text-gray-500 text-sm font-medium">Image Placeholder</span>
+                    </div>
+                  </div>
+                </div>
               )}
+            </div>
+          </div>
+        </div>
+      );
+    }
+
+    if (section.type === 'features') {
+      return (
+        <div className="w-full px-8 py-20 bg-white">
+          <div className="max-w-7xl mx-auto">
+            <div className="text-center mb-16">
+              <h2 className="text-3xl font-bold text-gray-900 mb-4">Amazing Features</h2>
+              <p className="text-gray-600 max-w-2xl mx-auto">Discover what makes our platform stand out from the rest.</p>
+            </div>
+            <div className={`grid gap-12 ${activeDevice === 'mobile' ? 'grid-cols-1' : 'grid-cols-3'}`}>
+              {[
+                { title: "Real-time Sync", desc: "Collaborate with your team in real-time.", icon: "🔄" },
+                { title: "Global CDN", desc: "Lightning fast content delivery worldwide.", icon: "🌍" },
+                { title: "Bank-grade Security", desc: "Your data is safe with us.", icon: "🔒" },
+                { title: "24/7 Support", desc: "We are here when you need us.", icon: "💬" },
+                { title: "Auto Scaling", desc: "Handle any amount of traffic effortlessly.", icon: "📈" },
+                { title: "Custom Domain", desc: "Use your own brand name.", icon: "🔗" }
+              ].map((f, i) => (
+                <div key={i} className="flex gap-4 items-start">
+                  <div className="text-2xl p-3 bg-gray-100 rounded-lg">{f.icon}</div>
+                  <div>
+                    <h3 className="font-bold text-lg mb-2 text-gray-900">{f.title}</h3>
+                    <p className="text-gray-600 leading-relaxed">{f.desc}</p>
+                  </div>
+                </div>
+              ))}
             </div>
           </div>
         </div>
@@ -285,28 +340,31 @@ export default function Home() {
     if (section.type === 'content') {
       return (
         <div
-          className="w-full px-8 py-16"
+          className="w-full px-8 py-24"
           style={{ backgroundColor: section.backgroundColor || "#ffffff" }}
         >
-          <div className="max-w-4xl mx-auto">
-            <div className="h-6 bg-gray-200 rounded w-1/3 mb-3 mx-auto animate-pulse" />
-            <div className="h-4 bg-gray-100 rounded w-2/3 mb-8 mx-auto animate-pulse" />
+          <div className="max-w-6xl mx-auto">
+            <div className="text-center mb-16">
+              <h2 className="text-3xl font-bold text-gray-900 mb-4">Everything you need</h2>
+              <p className="text-gray-500 max-w-2xl mx-auto text-lg">Powerful features to help you grow your business and reach more customers.</p>
+            </div>
+
             <div
-              className="grid gap-6"
-              style={{
-                gridTemplateColumns: activeDevice === "mobile"
-                  ? "1fr"
-                  : activeDevice === "tablet"
-                    ? "repeat(2, 1fr)"
-                    : "repeat(3, 1fr)"
-              }}
+              className={`grid gap-8 ${activeDevice === "mobile" ? "grid-cols-1" : activeDevice === "tablet" ? "grid-cols-2" : "grid-cols-3"}`}
             >
-              {[1, 2, 3].map((card) => (
-                <div key={card} className="bg-white rounded-lg shadow-sm border border-gray-100 p-6">
-                  <div className="h-32 bg-gray-100 rounded mb-4 animate-pulse" />
-                  <div className="h-4 bg-gray-200 rounded w-3/4 mb-2 animate-pulse" />
-                  <div className="h-3 bg-gray-100 rounded w-full mb-1 animate-pulse" />
-                  <div className="h-3 bg-gray-100 rounded w-5/6 animate-pulse" />
+              {[
+                { title: "Analytics", desc: "Get detailed insights into your users behavior.", color: "bg-blue-500", icon: "M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" },
+                { title: "Security", desc: "Enterprise-grade protection for your data.", color: "bg-purple-500", icon: "M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" },
+                { title: "Optimization", desc: "Lightning fast load times out of the box.", color: "bg-emerald-500", icon: "M13 10V3L4 14h7v7l9-11h-7z" },
+              ].map((card, i) => (
+                <div key={i} className="group bg-white rounded-2xl p-8 shadow-sm border border-gray-100 hover:shadow-xl hover:border-blue-100 transition-all duration-300 transform hover:-translate-y-1">
+                  <div className={`w-12 h-12 ${card.color} bg-opacity-10 rounded-xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform`}>
+                    <svg className={`w-6 h-6 ${card.color.replace('bg-', 'text-')}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d={card.icon} />
+                    </svg>
+                  </div>
+                  <h3 className="text-xl font-bold text-gray-900 mb-3">{card.title}</h3>
+                  <p className="text-gray-500 leading-relaxed">{card.desc}</p>
                 </div>
               ))}
             </div>
@@ -315,31 +373,122 @@ export default function Home() {
       );
     }
 
+    if (section.type === 'testimonials') {
+      return (
+        <div className="w-full px-8 py-24 bg-gray-50">
+          <div className="max-w-7xl mx-auto">
+            <h2 className="text-3xl font-bold text-center text-gray-900 mb-16">Trusted by Developers</h2>
+            <div className={`grid gap-8 ${activeDevice === 'mobile' ? 'grid-cols-1' : 'grid-cols-3'}`}>
+              {[1, 2, 3].map((i) => (
+                <div key={i} className="bg-white p-8 rounded-2xl shadow-sm border border-gray-100">
+                  <div className="flex text-yellow-400 mb-4">{"★".repeat(5)}</div>
+                  <p className="text-gray-600 mb-6 leading-relaxed">"This tool has revolutionized how we build websites. The speed and flexibility are unmatched in the industry."</p>
+                  <div className="flex items-center gap-4">
+                    <div className="w-12 h-12 bg-gray-200 rounded-full" />
+                    <div>
+                      <div className="font-bold text-gray-900">Alex Johnson</div>
+                      <div className="text-sm text-gray-500">CTO, TechStart</div>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+      );
+    }
+
+    if (section.type === 'pricing') {
+      return (
+        <div className="w-full px-8 py-24 bg-white">
+          <div className="max-w-7xl mx-auto">
+            <div className="text-center mb-16">
+              <h2 className="text-3xl font-bold text-gray-900 mb-4">Simple Pricing</h2>
+              <p className="text-gray-600">Start free, upgrade as you grow.</p>
+            </div>
+            <div className={`grid gap-8 ${activeDevice === 'mobile' ? 'grid-cols-1' : 'grid-cols-3'}`}>
+              {[
+                { name: "Starter", price: "$0", feats: ["1 Project", "Basic Analytics", "Community Support"] },
+                { name: "Pro", price: "$29", feats: ["Unlimited Projects", "Advanced Analytics", "Priority Support", "Custom Domain"], highlight: true },
+                { name: "Enterprise", price: "$99", feats: ["Dedicated Hosting", "SLA", "Account Manager", "SSO"] }
+              ].map((plan, i) => (
+                <div key={i} className={`p-8 rounded-2xl border ${plan.highlight ? 'border-blue-600 shadow-xl' : 'border-gray-200'} relative`}>
+                  {plan.highlight && <div className="absolute top-0 left-1/2 -translate-x-1/2 -translate-y-1/2 bg-blue-600 text-white px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wide">Most Popular</div>}
+                  <h3 className="text-lg font-semibold text-gray-900 mb-2">{plan.name}</h3>
+                  <div className="text-4xl font-bold text-gray-900 mb-6">{plan.price}<span className="text-lg text-gray-500 font-normal">/mo</span></div>
+                  <button className={`w-full py-3 rounded-lg font-semibold mb-8 transition-colors ${plan.highlight ? 'bg-blue-600 text-white hover:bg-blue-700' : 'bg-gray-100 text-gray-900 hover:bg-gray-200'}`}>Get Started</button>
+                  <ul className="space-y-4">
+                    {plan.feats.map((feat, j) => (
+                      <li key={j} className="flex items-center gap-3 text-gray-600">
+                        <span className="text-green-500">✓</span> {feat}
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+      );
+    }
+
+    if (section.type === 'cta') {
+      return (
+        <div className="w-full px-8 py-24 bg-[#1a1a2e] text-center">
+          <div className="max-w-3xl mx-auto">
+            <h2 className="text-3xl md:text-4xl font-bold text-white mb-6">Ready to start building?</h2>
+            <p className="text-gray-400 text-lg mb-10">Join thousands of developers building the future of the web today.</p>
+            <div className="flex gap-4 justify-center">
+              <button className="px-8 py-4 bg-blue-600 text-white font-bold rounded-xl hover:bg-blue-700 transition-colors">Start for Free</button>
+              <button className="px-8 py-4 bg-white/10 text-white font-bold rounded-xl hover:bg-white/20 transition-colors">Contact Sales</button>
+            </div>
+          </div>
+        </div>
+      );
+    }
+
     if (section.type === 'footer') {
       return (
-        <div className="w-full h-64 bg-[#1a1a2e] px-8 py-12">
-          <div className="flex gap-8" style={{ flexDirection: activeDevice === "mobile" ? "column" : "row" }}>
-            <div className="flex-1">
-              <div className="h-6 bg-white/20 rounded w-32 mb-4 animate-pulse" />
-              <div className="h-3 bg-white/10 rounded w-48 mb-2 animate-pulse" />
-              <div className="h-3 bg-white/10 rounded w-40 animate-pulse" />
+        <div className="w-full bg-[#0f172a] px-8 py-16 border-t border-gray-800">
+          <div className="max-w-7xl mx-auto">
+            <div className="grid gap-12" style={{ gridTemplateColumns: activeDevice === "mobile" ? "1fr" : "2fr 1fr 1fr 1fr" }}>
+              <div className="space-y-4">
+                <div className="flex items-center gap-2 text-white font-bold text-2xl">
+                  <div className="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center">O</div>
+                  OPENWIRE
+                </div>
+                <p className="text-gray-400 text-sm max-w-xs leading-relaxed">
+                  Making web design accessible, powerful, and fun for everyone. Built with modern technology for modern brands.
+                </p>
+                <div className="flex gap-4 pt-2">
+                  {[1, 2, 3].map(i => (
+                    <div key={i} className="w-8 h-8 rounded-full bg-gray-800 hover:bg-gray-700 cursor-pointer transition-colors" />
+                  ))}
+                </div>
+              </div>
+
+              {[
+                { title: "Product", links: ["Features", "Templates", "Integrations", "Pricing"] },
+                { title: "Resources", links: ["Documentation", "Guides", "Blog", "Support"] },
+                { title: "Company", links: ["About Us", "Careers", "Legal", "Privacy"] }
+              ].map((col, i) => (
+                <div key={i} className={activeDevice === "mobile" ? "hidden" : "block"}>
+                  <h4 className="text-white font-semibold mb-6">{col.title}</h4>
+                  <ul className="space-y-3">
+                    {col.links.map(link => (
+                      <li key={link}><a href="#" className="text-gray-400 hover:text-white text-sm transition-colors">{link}</a></li>
+                    ))}
+                  </ul>
+                </div>
+              ))}
             </div>
-            {activeDevice !== "mobile" && (
-              <>
-                <div className="flex-1">
-                  <div className="h-4 bg-white/20 rounded w-20 mb-3 animate-pulse" />
-                  {[1, 2, 3, 4].map((i) => (
-                    <div key={i} className="h-3 bg-white/10 rounded w-24 mb-2 animate-pulse" />
-                  ))}
-                </div>
-                <div className="flex-1">
-                  <div className="h-4 bg-white/20 rounded w-20 mb-3 animate-pulse" />
-                  {[1, 2, 3].map((i) => (
-                    <div key={i} className="h-3 bg-white/10 rounded w-28 mb-2 animate-pulse" />
-                  ))}
-                </div>
-              </>
-            )}
+            <div className="mt-16 pt-8 border-t border-gray-800 flex flex-col md:flex-row justify-between items-center gap-4 text-gray-500 text-sm">
+              <p>&copy; 2024 OpenWire Inc. All rights reserved.</p>
+              <div className="flex gap-6">
+                <span>Privacy Policy</span>
+                <span>Terms of Service</span>
+              </div>
+            </div>
           </div>
         </div>
       );
@@ -354,120 +503,121 @@ export default function Home() {
       onDragOver={handleDragOver}
       onDragEnd={handleDragEnd}
     >
-    <div
-      ref={canvasRef}
-      className="relative w-screen h-screen bg-[#f5f0e8] overflow-hidden select-none"
-      onClick={handleCanvasClick}
-    >
       <div
-        className="absolute"
-        style={{
-          transform: `translate(${panOffset.x}px, ${panOffset.y}px) scale(${zoom / 100})`,
-          transformOrigin: "0 0",
-          left: "50%",
-          top: "100px",
-        }}
-        onClick={(e) => e.stopPropagation()}
+        ref={canvasRef}
+        className="relative w-screen h-screen bg-[#f5f0e8] overflow-hidden select-none"
+        onClick={handleCanvasClick}
       >
         <div
-          className="flex flex-row"
+          className="absolute"
           style={{
-            gap: `${40}px`,
-            marginLeft: `-${(pages.length * (currentDevice.width + 40)) / 2}px`
+            transform: `translate(${panOffset.x}px, ${panOffset.y}px) scale(${zoom / 100})`,
+            transformOrigin: "0 0",
+            left: "50%",
+            top: "100px",
           }}
+          onClick={(e) => e.stopPropagation()}
         >
-          {pages.map((page) => (
-            <div key={page.id} className="flex flex-col items-center">
-              <div
-                className="bg-white rounded-sm relative shadow-sm"
-                style={{
-                  width: `${currentDevice.width}px`,
-                  minHeight: "800px",
-                  height: "fit-content",
-                  paddingBottom: "0px",
-                  overflow: "visible"
-                }}
-              >
-                <SortableContext
-                  items={page.sections}
-                  strategy={verticalListSortingStrategy}
-                >
-                  <div className="w-full h-full flex flex-col overflow-visible">
-                    {page.sections.map((sectionId) => {
-                      const section = sections[sectionId];
-                      if (!section) return null;
-                      return (
-                        <ClickableSection
-                          key={sectionId}
-                          id={sectionId}
-                          type={section.type}
-                          isSelected={selectedSectionId === sectionId}
-                          isDropTarget={overSectionId === sectionId && activeDragId !== sectionId}
-                          draggedHeight={draggedSectionHeight}
-                          onSelect={handleSectionSelect}
-                        >
-                          {renderSectionContent(sectionId)}
-                        </ClickableSection>
-                      );
-                    })}
-                  </div>
-                </SortableContext>
-              </div>
-            </div>
-          ))}
-        </div>
-      </div>
-
-      <DragOverlay dropAnimation={dropAnimation}>
-        {activeDragId ? (
           <div
+            className="flex flex-row"
             style={{
-              width: currentDevice.width,
-              overflow: 'hidden',
-              transform: `scale(${zoom / 100})`,
-              transformOrigin: 'top left',
+              gap: `${40}px`,
+              marginLeft: `-${(pages.length * (currentDevice.width + 40)) / 2}px`
             }}
-            className="shadow-2xl ring-2 ring-blue-500 rounded-lg bg-white cursor-grabbing"
           >
-            {renderSectionContent(activeDragId)}
+            {pages.map((page) => (
+              <div key={page.id} className="flex flex-col items-center">
+                <div
+                  className="bg-white rounded-sm relative shadow-sm"
+                  style={{
+                    width: `${currentDevice.width}px`,
+                    minHeight: "800px",
+                    height: "fit-content",
+                    paddingBottom: "0px",
+                    overflow: "visible"
+                  }}
+                >
+                  <SortableContext
+                    items={page.sections}
+                    strategy={verticalListSortingStrategy}
+                  >
+                    <div className="w-full h-full flex flex-col overflow-visible">
+                      {page.sections.map((sectionId) => {
+                        const section = sections[sectionId];
+                        if (!section) return null;
+                        return (
+                          <ClickableSection
+                            key={sectionId}
+                            id={sectionId}
+                            type={section.type}
+                            isSelected={selectedSectionId === sectionId}
+                            isDropTarget={overSectionId === sectionId && activeDragId !== sectionId}
+                            draggedHeight={draggedSectionHeight}
+                            onSelect={handleSectionSelect}
+                            onHeightCapture={captureSectionHeight}
+                          >
+                            {renderSectionContent(sectionId)}
+                          </ClickableSection>
+                        );
+                      })}
+                    </div>
+                  </SortableContext>
+                </div>
+              </div>
+            ))}
           </div>
-        ) : null}
-      </DragOverlay>
+        </div>
 
-      <div className="fixed left-4 top-4 flex flex-col gap-2">
-        <button className="w-10 h-10 bg-white hover:bg-[#ebe5dc] rounded-lg flex items-center justify-center text-[#5c5347] hover:text-[#3d3529] transition-colors shadow-sm border border-[#e0d9ce]">
-          <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M4 6h16M4 12h16M4 18h16" />
-          </svg>
-        </button>
-        <button className="w-10 h-10 bg-white hover:bg-[#ebe5dc] rounded-lg flex items-center justify-center text-[#5c5347] hover:text-[#3d3529] transition-colors shadow-sm border border-[#e0d9ce]">
-          <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M12 4v16m8-8H4" />
-          </svg>
-        </button>
+        <DragOverlay dropAnimation={dropAnimation}>
+          {activeDragId ? (
+            <div
+              style={{
+                width: currentDevice.width,
+                overflow: 'hidden',
+                transform: `scale(${zoom / 100})`,
+                transformOrigin: 'top left',
+              }}
+              className="shadow-2xl ring-2 ring-blue-500 rounded-lg bg-white cursor-grabbing"
+            >
+              {renderSectionContent(activeDragId)}
+            </div>
+          ) : null}
+        </DragOverlay>
+
+        <div className="fixed left-4 top-4 flex flex-col gap-2">
+          <button className="w-10 h-10 bg-white hover:bg-[#ebe5dc] rounded-lg flex items-center justify-center text-[#5c5347] hover:text-[#3d3529] transition-colors shadow-sm border border-[#e0d9ce]">
+            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M4 6h16M4 12h16M4 18h16" />
+            </svg>
+          </button>
+          <button className="w-10 h-10 bg-white hover:bg-[#ebe5dc] rounded-lg flex items-center justify-center text-[#5c5347] hover:text-[#3d3529] transition-colors shadow-sm border border-[#e0d9ce]">
+            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M12 4v16m8-8H4" />
+            </svg>
+          </button>
+        </div>
+
+        <SectionCustomizePopup
+          key={selectedSectionId || 'popup'}
+          isOpen={!!selectedSectionId}
+          section={selectedSectionData || null}
+          onLayoutSelect={handleLayoutSelect}
+          onUpdate={handleUpdateSection}
+          onMoveUp={handleMoveUp}
+          onMoveDown={handleMoveDown}
+          canMoveUp={selectedSectionInfo?.canMoveUp ?? false}
+          canMoveDown={selectedSectionInfo?.canMoveDown ?? false}
+          onClose={() => setSelectedSection(null)}
+        />
+
+        <CanvasToolbar
+          zoom={zoom}
+          onZoomChange={handleZoomChange}
+          activeDevice={activeDevice}
+          onDeviceChange={setActiveDevice}
+          onReset={handleReset}
+        />
       </div>
-
-      <SectionCustomizePopup
-        key={selectedSectionId || 'popup'}
-        isOpen={!!selectedSectionId}
-        section={selectedSectionData || null}
-        onLayoutSelect={handleLayoutSelect}
-        onUpdate={handleUpdateSection}
-        onMoveUp={handleMoveUp}
-        onMoveDown={handleMoveDown}
-        canMoveUp={selectedSectionInfo?.canMoveUp ?? false}
-        canMoveDown={selectedSectionInfo?.canMoveDown ?? false}
-        onClose={() => setSelectedSection(null)}
-      />
-
-      <CanvasToolbar
-        zoom={zoom}
-        onZoomChange={handleZoomChange}
-        activeDevice={activeDevice}
-        onDeviceChange={setActiveDevice}
-        onReset={handleReset}
-      />
-    </div>
     </DndContext>
   );
 }
