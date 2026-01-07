@@ -34,15 +34,13 @@ export default function CanvasToolbar({
   };
 
   return (
-    <div className="fixed bottom-6 right-6 flex items-center gap-2 bg-white rounded-lg px-2 py-2 border border-[#e0d9ce] shadow-sm">
-      <div className="w-px h-6 bg-[#e8e2d9]" />
-
-      <div className="flex items-center gap-1 px-1">
+    <div className="fixed bottom-6 right-6 flex items-center gap-2 bg-secondary rounded-[var(--radius)] border border-border p-1">
+      <div className="flex items-center gap-1">
         <button
           onClick={() => onDeviceChange("desktop")}
           className={`p-2 rounded transition-all ${activeDevice === "desktop"
-            ? "bg-white text-[#3d3529] shadow-md"
-            : "bg-[#e8e2d9] text-[#8c8377] hover:bg-[#ded7cc] hover:text-[#5c5347]"
+            ? "bg-background text-foreground shadow-md"
+            : "text-foreground hover:bg-accent hover:text-foreground"
             }`}
           title="Desktop view"
         >
@@ -55,8 +53,8 @@ export default function CanvasToolbar({
         <button
           onClick={() => onDeviceChange("tablet")}
           className={`p-2 rounded transition-all ${activeDevice === "tablet"
-            ? "bg-white text-[#3d3529] shadow-md"
-            : "bg-[#e8e2d9] text-[#8c8377] hover:bg-[#ded7cc] hover:text-[#5c5347]"
+            ? "bg-background text-foreground shadow-md"
+            : "text-foreground hover:bg-accent hover:text-foreground cursor-pointer"
             }`}
           title="Tablet view"
         >
@@ -68,8 +66,8 @@ export default function CanvasToolbar({
         <button
           onClick={() => onDeviceChange("mobile")}
           className={`p-2 rounded transition-all ${activeDevice === "mobile"
-            ? "bg-white text-[#3d3529] shadow-md"
-            : "bg-[#e8e2d9] text-[#8c8377] hover:bg-[#ded7cc] hover:text-[#5c5347]"
+            ? "bg-background text-foreground shadow-md"
+            : "text-foreground hover:bg-accent hover:text-foreground cursor-pointer"
             }`}
           title="Mobile view"
         >
@@ -86,7 +84,7 @@ export default function CanvasToolbar({
         <button
           onClick={handleZoomOut}
           disabled={zoom <= zoomLevels[0]}
-          className="p-1.5 text-[#8c8377] hover:text-[#5c5347] hover:bg-[#f5f0e8] rounded transition-colors disabled:opacity-30 disabled:cursor-not-allowed"
+          className="p-1.5 text-foreground hover:text-foreground hover:bg-accent rounded transition-colors disabled:opacity-30 disabled:cursor-not-allowed"
           title="Zoom out"
         >
           <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -96,7 +94,7 @@ export default function CanvasToolbar({
 
         <button
           onClick={onReset}
-          className="min-w-[52px] px-2 py-1 text-sm font-medium text-[#5c5347] hover:text-[#3d3529] hover:bg-[#f5f0e8] rounded transition-colors text-center"
+          className="min-w-[52px] px-2 py-1 text-sm font-medium text-foreground hover:text-foreground hover:bg-accent rounded transition-colors text-center"
           title="Reset zoom"
         >
           {Math.round(zoom)}%
@@ -105,7 +103,7 @@ export default function CanvasToolbar({
         <button
           onClick={handleZoomIn}
           disabled={zoom >= zoomLevels[zoomLevels.length - 1]}
-          className="p-1.5 text-[#8c8377] hover:text-[#5c5347] hover:bg-[#f5f0e8] rounded transition-colors disabled:opacity-30 disabled:cursor-not-allowed"
+          className="p-1.5 text-foreground hover:text-foreground hover:bg-accent rounded transition-colors disabled:opacity-30 disabled:cursor-not-allowed"
           title="Zoom in"
         >
           <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">

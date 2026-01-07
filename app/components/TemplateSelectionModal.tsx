@@ -99,15 +99,6 @@ export default function TemplateSelectionModal({ isOpen, onSelect, onClose }: Te
                             </button>
                         ))}
                     </div>
-
-                    <div className="mt-6 pt-6 border-t border-gray-200">
-                        <button
-                            onClick={onClose}
-                            className="w-full py-4 text-gray-500 hover:text-gray-700 text-sm font-medium transition-colors"
-                        >
-                            Or start with a blank canvas
-                        </button>
-                    </div>
                 </div>
             </div>
         </div>

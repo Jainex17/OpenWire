@@ -23,6 +23,7 @@ import ClickableSection from "./components/ClickableSection";
 import SectionCustomizePopup from "./components/SectionCustomizePopup";
 import TemplateSelectionModal from "./components/TemplateSelectionModal";
 import { useEditorStore, TemplateType } from "./store/useEditorStore";
+import { FileIcon, HomeIcon, MoreHorizontal, MoreHorizontalIcon, MoreVerticalIcon } from "lucide-react";
 
 const DEVICE_DIMENSIONS = {
   desktop: { width: 1440, height: 900, label: "Desktop" },
@@ -522,7 +523,7 @@ export default function Home() {
     >
       <div
         ref={canvasRef}
-        className="relative w-screen h-screen bg-[#f5f0e8] overflow-hidden select-none"
+        className="relative w-screen h-screen overflow-hidden select-none"
         onClick={handleCanvasClick}
       >
         <div
@@ -544,8 +545,16 @@ export default function Home() {
           >
             {pages.map((page) => (
               <div key={page.id} className="flex flex-col items-center">
+                <div className="w-full h-[50px] flex items-center pl-4 pr-2 mb-4 rounded-[var(--radius)] justify-between bg-secondary">
+                  <p className="text-foreground font-medium text-md flex items-center gap-3">{page.title == "Home" ? <HomeIcon width={20} /> : <FileIcon width={20} />} {page.title}</p>
+                  <button className="rounded-[var(--radius)] py-2 px-3 hover:bg-accent hover:text-foreground">
+                    <MoreHorizontalIcon width={22} className="cursor-pointer" />
+                  </button>
+                </div>
+
+
                 <div
-                  className="bg-white rounded-sm relative shadow-sm"
+                  className="bg-white rounded-[var(--radius)] relative"
                   style={{
                     width: `${currentDevice.width}px`,
                     minHeight: "800px",
@@ -627,14 +636,14 @@ export default function Home() {
         </DragOverlay>
 
         <div className="fixed left-4 top-4 flex flex-col gap-2">
-          <button className="w-10 h-10 bg-white hover:bg-[#ebe5dc] rounded-lg flex items-center justify-center text-[#5c5347] hover:text-[#3d3529] transition-colors shadow-sm border border-[#e0d9ce]">
+          <button className="w-10 h-10 rounded-lg flex items-center justify-center bg-secondary text-foreground cursor-pointer transition-colors">
             <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M4 6h16M4 12h16M4 18h16" />
             </svg>
           </button>
           <button
             onClick={() => addPage()}
-            className="w-10 h-10 bg-white hover:bg-[#ebe5dc] rounded-lg flex items-center justify-center text-[#5c5347] hover:text-[#3d3529] transition-colors shadow-sm border border-[#e0d9ce]"
+            className="w-10 h-10 rounded-lg flex items-center justify-center cursor-pointer bg-secondary text-foreground"
             title="Add new page"
           >
             <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
