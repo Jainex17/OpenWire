@@ -48,7 +48,7 @@ export default function ClickableSection({
             {isDropTarget && draggedHeight && !isDragging && (
                 <div
                     className="w-full border-2 border-dashed border-blue-400 rounded-lg bg-blue-50/30 transition-all duration-200"
-                    style={{ height: `${draggedHeight + 200}px` }}
+                    style={{ height: `${draggedHeight}px` }}
                 />
             )}
 

@@ -21,7 +21,8 @@ import {
 import CanvasToolbar from "./components/CanvasToolbar";
 import ClickableSection from "./components/ClickableSection";
 import SectionCustomizePopup from "./components/SectionCustomizePopup";
-import { useEditorStore } from "./store/useEditorStore";
+import TemplateSelectionModal from "./components/TemplateSelectionModal";
+import { useEditorStore, TemplateType } from "./store/useEditorStore";
 
 const DEVICE_DIMENSIONS = {
   desktop: { width: 1440, height: 900, label: "Desktop" },
@@ -49,6 +50,8 @@ export default function Home() {
   const [overSectionId, setOverSectionId] = useState<string | null>(null);
   const [dragDimensions, setDragDimensions] = useState<{ width: number; height: number } | null>(null);
   const [draggedSectionHeight, setDraggedSectionHeight] = useState<number | null>(null);
+  const [showTemplateModal, setShowTemplateModal] = useState(false);
+  const [templateModalPageId, setTemplateModalPageId] = useState<string | null>(null);
 
   const captureSectionHeight = useCallback((id: string, height: number) => {
     sectionHeightsRef.current.set(id, height);
@@ -56,10 +59,24 @@ export default function Home() {
 
   const {
     zoom, panOffset, activeDevice,
-    pages, sections, selectedSectionId,
+    pages, sections, selectedSectionId, activeTemplate,
     setZoom, setPanOffset, setActiveDevice, setSelectedSection,
-    updateSectionLayout, updateSectionData, moveSection, reorderSection
+    updateSectionLayout, updateSectionData, moveSection, reorderSection,
+    loadTemplate, loadTemplateToPage, addPage
   } = useEditorStore();
+
+  // Check if any page has sections
+  const hasContent = pages.some(page => page.sections.length > 0);
+
+  const handleTemplateSelect = (templateType: TemplateType) => {
+    if (templateModalPageId) {
+      loadTemplateToPage(templateModalPageId, templateType);
+    } else {
+      loadTemplate(templateType);
+    }
+    setShowTemplateModal(false);
+    setTemplateModalPageId(null);
+  };
 
   const MIN_ZOOM = 5;
   const MAX_ZOOM = 200;
@@ -273,14 +290,14 @@ export default function Home() {
                   <span className="w-2 h-2 rounded-full bg-blue-400 animate-pulse"></span>
                   v2.0 is now live
                 </div>
-                <h1 className="text-4xl md:text-6xl font-extrabold tracking-tight text-white mb-6 leading-tight">
+                <h1 className="text-4xl md:text2xl font-extrabold tracking-tight text-white mb-6 leading-tight">
                   Build faster with <span className="text-blue-500">Intelligent Blocks</span>
                 </h1>
                 <p className="text-lg text-gray-400 mb-8 max-w-xl leading-relaxed">
                   Create stunning websites in minutes using our intuitive drag-and-drop editor. No coding required, just pure creativity.
                 </p>
                 <div className="flex gap-4 w-full md:w-auto">
-                  <button className="flex-1 md:flex-none px-8 py-3.5 rounded-xl bg-blue-600 text-white font-semibold hover:bg-blue-700 transition-all">
+                  <button className="flex-1 md:flex-none px-8 py-3.5 md:px-6 md:py-2 rounded-xl bg-blue-600 text-white font-semibold hover:bg-blue-700 transition-all">
                     Start Building
                   </button>
                   <button className="flex-1 md:flex-none px-8 py-3.5 rounded-xl bg-gray-800 text-white font-semibold border border-gray-700 hover:bg-gray-700 transition-all">
@@ -521,8 +538,8 @@ export default function Home() {
           <div
             className="flex flex-row"
             style={{
-              gap: `${40}px`,
-              marginLeft: `-${(pages.length * (currentDevice.width + 40)) / 2}px`
+              gap: `${120}px`,
+              marginLeft: `-${(pages.length * (currentDevice.width + 120)) / 2}px`
             }}
           >
             {pages.map((page) => (
@@ -537,31 +554,56 @@ export default function Home() {
                     overflow: "visible"
                   }}
                 >
-                  <SortableContext
-                    items={page.sections}
-                    strategy={verticalListSortingStrategy}
-                  >
-                    <div className="w-full h-full flex flex-col overflow-visible">
-                      {page.sections.map((sectionId) => {
-                        const section = sections[sectionId];
-                        if (!section) return null;
-                        return (
-                          <ClickableSection
-                            key={sectionId}
-                            id={sectionId}
-                            type={section.type}
-                            isSelected={selectedSectionId === sectionId}
-                            isDropTarget={overSectionId === sectionId && activeDragId !== sectionId}
-                            draggedHeight={draggedSectionHeight}
-                            onSelect={handleSectionSelect}
-                            onHeightCapture={captureSectionHeight}
-                          >
-                            {renderSectionContent(sectionId)}
-                          </ClickableSection>
-                        );
-                      })}
+                  {page.sections.length === 0 ? (
+                    <div className="w-full h-[800px] flex flex-col items-center justify-center">
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          setTemplateModalPageId(page.id);
+                          setShowTemplateModal(true);
+                        }}
+                        className="group flex flex-col items-center gap-6 p-12 rounded-2xl transition-all duration-300"
+                      >
+                        <div className="w-24 h-24 rounded-full bg-blue-500 cursor-pointer flex items-center justify-center shadow-lg shadow-blue-500/25 group-hover:scale-110 transition-transform">
+                          <svg className="w-10 h-10 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
+                          </svg>
+                        </div>
+                        <div className="text-center">
+                          <h3 className="text-xl font-bold text-gray-900 mb-2">Choose a Template</h3>
+                          <p className="text-gray-500 max-w-xs">
+                            Start with a pre-built template and customize it to match your brand
+                          </p>
+                        </div>
+                      </button>
                     </div>
-                  </SortableContext>
+                  ) : (
+                    <SortableContext
+                      items={page.sections}
+                      strategy={verticalListSortingStrategy}
+                    >
+                      <div className="w-full h-full flex flex-col overflow-visible">
+                        {page.sections.map((sectionId) => {
+                          const section = sections[sectionId];
+                          if (!section) return null;
+                          return (
+                            <ClickableSection
+                              key={sectionId}
+                              id={sectionId}
+                              type={section.type}
+                              isSelected={selectedSectionId === sectionId}
+                              isDropTarget={overSectionId === sectionId && activeDragId !== sectionId && activeDragPageId === page.id}
+                              draggedHeight={draggedSectionHeight}
+                              onSelect={handleSectionSelect}
+                              onHeightCapture={captureSectionHeight}
+                            >
+                              {renderSectionContent(sectionId)}
+                            </ClickableSection>
+                          );
+                        })}
+                      </div>
+                    </SortableContext>
+                  )}
                 </div>
               </div>
             ))}
@@ -590,7 +632,11 @@ export default function Home() {
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M4 6h16M4 12h16M4 18h16" />
             </svg>
           </button>
-          <button className="w-10 h-10 bg-white hover:bg-[#ebe5dc] rounded-lg flex items-center justify-center text-[#5c5347] hover:text-[#3d3529] transition-colors shadow-sm border border-[#e0d9ce]">
+          <button
+            onClick={() => addPage()}
+            className="w-10 h-10 bg-white hover:bg-[#ebe5dc] rounded-lg flex items-center justify-center text-[#5c5347] hover:text-[#3d3529] transition-colors shadow-sm border border-[#e0d9ce]"
+            title="Add new page"
+          >
             <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M12 4v16m8-8H4" />
             </svg>
@@ -616,6 +662,15 @@ export default function Home() {
           activeDevice={activeDevice}
           onDeviceChange={setActiveDevice}
           onReset={handleReset}
+        />
+
+        <TemplateSelectionModal
+          isOpen={showTemplateModal}
+          onSelect={handleTemplateSelect}
+          onClose={() => {
+            setShowTemplateModal(false);
+            setTemplateModalPageId(null);
+          }}
         />
       </div>
     </DndContext>

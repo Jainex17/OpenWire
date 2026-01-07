@@ -3,6 +3,7 @@ import { persist, createJSONStorage } from 'zustand/middleware';
 import { SectionType } from '@/app/lib/sectionLayouts';
 
 export type DeviceType = "desktop" | "tablet" | "mobile";
+export type TemplateType = "saas" | "business" | "portfolio" | "ecommerce" | null;
 
 export interface CanvasState {
     zoom: number;
@@ -31,6 +32,7 @@ export interface ProjectState {
     sections: Record<string, SectionData>;
     selectedSectionId: string | null;
     draggingSectionId: string | null;
+    activeTemplate: TemplateType;
 }
 
 export interface EditorState extends CanvasState, ProjectState {
@@ -45,57 +47,79 @@ export interface EditorState extends CanvasState, ProjectState {
     removeSection: (pageId: string, sectionId: string) => void;
     moveSection: (pageId: string, sectionId: string, direction: 'up' | 'down') => void;
     reorderSection: (pageId: string, sectionId: string, newIndex: number) => void;
+    loadTemplate: (templateType: TemplateType) => void;
+    loadTemplateToPage: (pageId: string, templateType: TemplateType) => void;
+    addPage: () => void;
+    resetProject: () => void;
 }
 
-const generateInitialState = (): Pick<ProjectState, 'pages' | 'sections' | 'selectedSectionId' | 'draggingSectionId'> => {
-    const pages: PageData[] = [
-        { id: "page-1", title: "Home", sections: [] },
+const generateEmptyState = (): Pick<ProjectState, 'pages' | 'sections' | 'selectedSectionId' | 'draggingSectionId' | 'activeTemplate'> => {
+    return {
+        pages: [{ id: "page-1", title: "Home", sections: [] }],
+        sections: {},
+        selectedSectionId: null,
+        draggingSectionId: null,
+        activeTemplate: null
+    };
+};
+
+const generateSaasTemplate = (): { pages: PageData[], sections: Record<string, SectionData> } => {
+    const pages: PageData[] = [{ id: "page-1", title: "Home", sections: [] }];
+    const sections: Record<string, SectionData> = {};
+    const pageId = "page-1";
+
+    const sectionConfigs: Array<{ id: string; type: SectionType; layoutId: string; backgroundColor?: string }> = [
+        { id: `navbar-${pageId}`, type: 'navbar', layoutId: 'nav-1' },
+        { id: `hero-${pageId}`, type: 'hero', layoutId: 'hero-1' },
+        { id: `features-${pageId}`, type: 'features', layoutId: 'features-1', backgroundColor: '#ffffff' },
+        { id: `content-${pageId}`, type: 'content', layoutId: 'content-1', backgroundColor: '#f9fafb' },
+        { id: `testimonials-${pageId}`, type: 'testimonials', layoutId: 'testimonials-1', backgroundColor: '#ffffff' },
+        { id: `pricing-${pageId}`, type: 'pricing', layoutId: 'pricing-1', backgroundColor: '#f9fafb' },
+        { id: `cta-${pageId}`, type: 'cta', layoutId: 'cta-1', backgroundColor: '#1a1a2e' },
+        { id: `footer-${pageId}`, type: 'footer', layoutId: 'footer-1' },
     ];
 
-    const sections: Record<string, SectionData> = {};
-
-    pages.forEach(page => {
-        const headerId = `header-${page.id}`;
-        sections[headerId] = { id: headerId, type: 'navbar', layoutId: 'nav-1', content: {} };
-        page.sections.push(headerId);
-
-        if (page.id === 'page-1') {
-            const heroId = `hero-${page.id}`;
-            sections[heroId] = { id: heroId, type: 'hero', layoutId: 'hero-1', content: {} };
-            page.sections.push(heroId);
-
-            const featuresId = `features-${page.id}`;
-            sections[featuresId] = { id: featuresId, type: 'features', layoutId: 'features-1', backgroundColor: '#ffffff', content: {} };
-            page.sections.push(featuresId);
-
-            const contentId = `content-${page.id}`;
-            sections[contentId] = { id: contentId, type: 'content', layoutId: 'content-1', backgroundColor: '#f9fafb', content: {} };
-            page.sections.push(contentId);
-
-            const testimonialsId = `testimonials-${page.id}`;
-            sections[testimonialsId] = { id: testimonialsId, type: 'testimonials', layoutId: 'testimonials-1', backgroundColor: '#ffffff', content: {} };
-            page.sections.push(testimonialsId);
-
-            const pricingId = `pricing-${page.id}`;
-            sections[pricingId] = { id: pricingId, type: 'pricing', layoutId: 'pricing-1', backgroundColor: '#f9fafb', content: {} };
-            page.sections.push(pricingId);
-
-            const ctaId = `cta-${page.id}`;
-            sections[ctaId] = { id: ctaId, type: 'cta', layoutId: 'cta-1', backgroundColor: '#1a1a2e', content: {} };
-            page.sections.push(ctaId);
-        } else {
-            const contentId = `content-${page.id}`;
-            sections[contentId] = { id: contentId, type: 'content', layoutId: 'content-1', backgroundColor: "#ffffff", content: {} };
-            page.sections.push(contentId);
-        }
-
-
-        const footerId = `footer-${page.id}`;
-        sections[footerId] = { id: footerId, type: 'footer', layoutId: 'footer-1', content: {} };
-        page.sections.push(footerId);
+    sectionConfigs.forEach(config => {
+        sections[config.id] = {
+            id: config.id,
+            type: config.type,
+            layoutId: config.layoutId,
+            backgroundColor: config.backgroundColor,
+            content: {}
+        };
+        pages[0].sections.push(config.id);
     });
 
-    return { pages, sections, selectedSectionId: null, draggingSectionId: null };
+    return { pages, sections };
+};
+
+const generateBusinessTemplate = (): { pages: PageData[], sections: Record<string, SectionData> } => {
+    const pages: PageData[] = [{ id: "page-1", title: "Home", sections: [] }];
+    const sections: Record<string, SectionData> = {};
+    const pageId = "page-1";
+
+    const sectionConfigs: Array<{ id: string; type: SectionType; layoutId: string; backgroundColor?: string }> = [
+        { id: `navbar-${pageId}`, type: 'navbar', layoutId: 'nav-2' },
+        { id: `hero-${pageId}`, type: 'hero', layoutId: 'hero-2' },
+        { id: `content-${pageId}`, type: 'content', layoutId: 'content-2', backgroundColor: '#ffffff' },
+        { id: `features-${pageId}`, type: 'features', layoutId: 'features-2', backgroundColor: '#f8fafc' },
+        { id: `testimonials-${pageId}`, type: 'testimonials', layoutId: 'testimonials-2', backgroundColor: '#ffffff' },
+        { id: `cta-${pageId}`, type: 'cta', layoutId: 'cta-2', backgroundColor: '#1e293b' },
+        { id: `footer-${pageId}`, type: 'footer', layoutId: 'footer-2' },
+    ];
+
+    sectionConfigs.forEach(config => {
+        sections[config.id] = {
+            id: config.id,
+            type: config.type,
+            layoutId: config.layoutId,
+            backgroundColor: config.backgroundColor,
+            content: {}
+        };
+        pages[0].sections.push(config.id);
+    });
+
+    return { pages, sections };
 };
 
 const DEFAULT_CANVAS_STATE = {
@@ -109,7 +133,7 @@ export const useEditorStore = create<EditorState>()(
     persist(
         (set) => ({
             ...DEFAULT_CANVAS_STATE,
-            ...generateInitialState(),
+            ...generateEmptyState(),
 
             setZoom: (zoom) => set({ zoom }),
             setPanOffset: (panOffset) => set({ panOffset }),
@@ -207,12 +231,136 @@ export const useEditorStore = create<EditorState>()(
 
                 return { pages: newPages };
             }),
+
+            loadTemplate: (templateType) => set(() => {
+                if (!templateType) return generateEmptyState();
+
+                let templateData: { pages: PageData[], sections: Record<string, SectionData> };
+
+                switch (templateType) {
+                    case 'saas':
+                        templateData = generateSaasTemplate();
+                        break;
+                    case 'business':
+                        templateData = generateBusinessTemplate();
+                        break;
+                    case 'portfolio':
+                    case 'ecommerce':
+                        templateData = generateSaasTemplate();
+                        break;
+                    default:
+                        return generateEmptyState();
+                }
+
+                return {
+                    ...templateData,
+                    activeTemplate: templateType,
+                    selectedSectionId: null,
+                    draggingSectionId: null
+                };
+            }),
+
+            loadTemplateToPage: (pageId, templateType) => set((state) => {
+                if (!templateType) return state;
+
+                const pageIndex = state.pages.findIndex(p => p.id === pageId);
+                if (pageIndex === -1) return state;
+
+                let sectionConfigs: Array<{ type: SectionType; layoutId: string; backgroundColor?: string }>;
+
+                switch (templateType) {
+                    case 'saas':
+                        sectionConfigs = [
+                            { type: 'navbar', layoutId: 'nav-1' },
+                            { type: 'hero', layoutId: 'hero-1' },
+                            { type: 'features', layoutId: 'features-1', backgroundColor: '#ffffff' },
+                            { type: 'content', layoutId: 'content-1', backgroundColor: '#f9fafb' },
+                            { type: 'testimonials', layoutId: 'testimonials-1', backgroundColor: '#ffffff' },
+                            { type: 'pricing', layoutId: 'pricing-1', backgroundColor: '#f9fafb' },
+                            { type: 'cta', layoutId: 'cta-1', backgroundColor: '#1a1a2e' },
+                            { type: 'footer', layoutId: 'footer-1' },
+                        ];
+                        break;
+                    case 'business':
+                        sectionConfigs = [
+                            { type: 'navbar', layoutId: 'nav-2' },
+                            { type: 'hero', layoutId: 'hero-2' },
+                            { type: 'content', layoutId: 'content-2', backgroundColor: '#ffffff' },
+                            { type: 'features', layoutId: 'features-2', backgroundColor: '#f8fafc' },
+                            { type: 'testimonials', layoutId: 'testimonials-2', backgroundColor: '#ffffff' },
+                            { type: 'cta', layoutId: 'cta-2', backgroundColor: '#1e293b' },
+                            { type: 'footer', layoutId: 'footer-2' },
+                        ];
+                        break;
+                    case 'portfolio':
+                    case 'ecommerce':
+                    default:
+                        sectionConfigs = [
+                            { type: 'navbar', layoutId: 'nav-1' },
+                            { type: 'hero', layoutId: 'hero-1' },
+                            { type: 'features', layoutId: 'features-1', backgroundColor: '#ffffff' },
+                            { type: 'content', layoutId: 'content-1', backgroundColor: '#f9fafb' },
+                            { type: 'cta', layoutId: 'cta-1', backgroundColor: '#1a1a2e' },
+                            { type: 'footer', layoutId: 'footer-1' },
+                        ];
+                        break;
+                }
+
+                const newSections: Record<string, SectionData> = { ...state.sections };
+                const newSectionIds: string[] = [];
+
+                sectionConfigs.forEach(config => {
+                    const sectionId = `${config.type}-${pageId}-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
+                    newSections[sectionId] = {
+                        id: sectionId,
+                        type: config.type,
+                        layoutId: config.layoutId,
+                        backgroundColor: config.backgroundColor,
+                        content: {}
+                    };
+                    newSectionIds.push(sectionId);
+                });
+
+                const newPages = [...state.pages];
+                newPages[pageIndex] = {
+                    ...newPages[pageIndex],
+                    sections: newSectionIds
+                };
+
+                return {
+                    pages: newPages,
+                    sections: newSections,
+                    selectedSectionId: null,
+                    draggingSectionId: null
+                };
+            }),
+
+            addPage: () => set((state) => {
+                const newPageNumber = state.pages.length + 1;
+                const newPageId = `page-${Date.now()}`;
+                const newPage: PageData = {
+                    id: newPageId,
+                    title: `Page ${newPageNumber}`,
+                    sections: []
+                };
+                return {
+                    pages: [...state.pages, newPage]
+                };
+            }),
+
+            resetProject: () => set(() => ({
+                ...generateEmptyState(),
+                zoom: 20,
+                panOffset: { x: 0, y: 0 }
+            })),
         }),
         {
             name: 'openwire-editor-storage',
             storage: createJSONStorage(() => localStorage),
             partialize: (state) => ({
                 pages: state.pages,
+                sections: state.sections,
+                activeTemplate: state.activeTemplate,
             })
         }
     )
