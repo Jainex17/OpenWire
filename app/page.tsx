@@ -185,8 +185,23 @@ export default function Home() {
       if (e.ctrlKey || e.metaKey) {
         const delta = -e.deltaY;
         const zoomFactor = 1 + delta * 0.001;
-        const newZoom = zoom * zoomFactor;
-        handleZoomChange(newZoom);
+        const newZoom = Math.min(Math.max(zoom * zoomFactor, MIN_ZOOM), MAX_ZOOM);
+
+        const rect = canvas.getBoundingClientRect();
+        const mouseX = e.clientX - rect.left;
+        const mouseY = e.clientY - rect.top;
+
+        const canvasCenterX = rect.width / 2;
+        const canvasTopOffset = 100;
+
+        const contentX = (mouseX - canvasCenterX - panOffset.x) / (zoom / 100);
+        const contentY = (mouseY - canvasTopOffset - panOffset.y) / (zoom / 100);
+
+        const newPanX = mouseX - canvasCenterX - contentX * (newZoom / 100);
+        const newPanY = mouseY - canvasTopOffset - contentY * (newZoom / 100);
+
+        setZoom(newZoom);
+        setPanOffset({ x: newPanX, y: newPanY });
       } else {
         setPanOffset({
           x: panOffset.x - (e.deltaX * 0.6),
