@@ -22,8 +22,9 @@ import CanvasToolbar from "./components/CanvasToolbar";
 import ClickableSection from "./components/ClickableSection";
 import SectionCustomizePopup from "./components/SectionCustomizePopup";
 import TemplateSelectionModal from "./components/TemplateSelectionModal";
+import PageOptionsMenu from "./components/PageOptionsMenu";
 import { useEditorStore, TemplateType } from "./store/useEditorStore";
-import { FileIcon, HomeIcon, MoreHorizontal, MoreHorizontalIcon, MoreVerticalIcon } from "lucide-react";
+import { FileIcon, HomeIcon } from "lucide-react";
 
 const DEVICE_DIMENSIONS = {
   desktop: { width: 1440, height: 900, label: "Desktop" },
@@ -53,6 +54,7 @@ export default function Home() {
   const [draggedSectionHeight, setDraggedSectionHeight] = useState<number | null>(null);
   const [showTemplateModal, setShowTemplateModal] = useState(false);
   const [templateModalPageId, setTemplateModalPageId] = useState<string | null>(null);
+  const [openPageMenuId, setOpenPageMenuId] = useState<string | null>(null);
 
   const captureSectionHeight = useCallback((id: string, height: number) => {
     sectionHeightsRef.current.set(id, height);
@@ -63,10 +65,9 @@ export default function Home() {
     pages, sections, selectedSectionId, activeTemplate,
     setZoom, setPanOffset, setActiveDevice, setSelectedSection,
     updateSectionLayout, updateSectionData, moveSection, reorderSection,
-    loadTemplate, loadTemplateToPage, addPage
+    loadTemplate, loadTemplateToPage, addPage, deletePage, duplicatePage, renamePage
   } = useEditorStore();
 
-  // Check if any page has sections
   const hasContent = pages.some(page => page.sections.length > 0);
 
   const handleTemplateSelect = (templateType: TemplateType) => {
@@ -117,6 +118,7 @@ export default function Home() {
 
   const handleCanvasClick = () => {
     setSelectedSection(null);
+    setOpenPageMenuId(null);
   };
 
   const handleDragStart = (event: DragStartEvent) => {
@@ -547,11 +549,18 @@ export default function Home() {
               <div key={page.id} className="flex flex-col items-center">
                 <div className="w-full h-[50px] flex items-center pl-4 pr-2 mb-4 rounded-[var(--radius)] justify-between bg-secondary">
                   <p className="text-foreground font-medium text-md flex items-center gap-3">{page.title == "Home" ? <HomeIcon width={20} /> : <FileIcon width={20} />} {page.title}</p>
-                  <button className="rounded-[var(--radius)] py-2 px-3 hover:bg-accent hover:text-foreground">
-                    <MoreHorizontalIcon width={22} className="cursor-pointer" />
-                  </button>
+                  <PageOptionsMenu
+                    pageId={page.id}
+                    pageTitle={page.title}
+                    isOpen={openPageMenuId === page.id}
+                    isOnlyPage={pages.length <= 1}
+                    onToggle={() => setOpenPageMenuId(openPageMenuId === page.id ? null : page.id)}
+                    onClose={() => setOpenPageMenuId(null)}
+                    onRename={(newTitle) => renamePage(page.id, newTitle)}
+                    onDuplicate={() => duplicatePage(page.id)}
+                    onDelete={() => deletePage(page.id)}
+                  />
                 </div>
-
 
                 <div
                   className="bg-white rounded-[var(--radius)] relative"

@@ -50,6 +50,9 @@ export interface EditorState extends CanvasState, ProjectState {
     loadTemplate: (templateType: TemplateType) => void;
     loadTemplateToPage: (pageId: string, templateType: TemplateType) => void;
     addPage: () => void;
+    deletePage: (pageId: string) => void;
+    duplicatePage: (pageId: string) => void;
+    renamePage: (pageId: string, newTitle: string) => void;
     resetProject: () => void;
 }
 
@@ -346,6 +349,73 @@ export const useEditorStore = create<EditorState>()(
                 return {
                     pages: [...state.pages, newPage]
                 };
+            }),
+
+            deletePage: (pageId) => set((state) => {
+                if (state.pages.length <= 1) return state;
+
+                const pageToDelete = state.pages.find(p => p.id === pageId);
+                if (!pageToDelete) return state;
+
+                const newSections = { ...state.sections };
+                pageToDelete.sections.forEach(sectionId => {
+                    delete newSections[sectionId];
+                });
+
+                return {
+                    pages: state.pages.filter(p => p.id !== pageId),
+                    sections: newSections,
+                    selectedSectionId: null
+                };
+            }),
+
+            duplicatePage: (pageId) => set((state) => {
+                const pageToDuplicate = state.pages.find(p => p.id === pageId);
+                if (!pageToDuplicate) return state;
+
+                const newPageId = `page-${Date.now()}`;
+                const newSections: Record<string, SectionData> = { ...state.sections };
+                const newSectionIds: string[] = [];
+
+                pageToDuplicate.sections.forEach(sectionId => {
+                    const originalSection = state.sections[sectionId];
+                    if (originalSection) {
+                        const newSectionId = `${originalSection.type}-${newPageId}-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
+                        newSections[newSectionId] = {
+                            ...originalSection,
+                            id: newSectionId
+                        };
+                        newSectionIds.push(newSectionId);
+                    }
+                });
+
+                const newPage: PageData = {
+                    id: newPageId,
+                    title: `${pageToDuplicate.title} (Copy)`,
+                    sections: newSectionIds
+                };
+
+                const pageIndex = state.pages.findIndex(p => p.id === pageId);
+                const newPages = [...state.pages];
+                newPages.splice(pageIndex + 1, 0, newPage);
+
+                return {
+                    pages: newPages,
+                    sections: newSections
+                };
+            }),
+
+            renamePage: (pageId, newTitle) => set((state) => {
+                const pageIndex = state.pages.findIndex(p => p.id === pageId);
+                if (pageIndex === -1) return state;
+
+                const newPages = [...state.pages];
+                newPages[pageIndex] = {
+                    ...newPages[pageIndex],
+                    title: newTitle
+                };
+
+                return { pages: newPages };
             }),
 
             resetProject: () => set(() => ({
