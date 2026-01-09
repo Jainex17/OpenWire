@@ -267,43 +267,43 @@ export default function Home() {
     }
 
     if (section.type === 'hero') {
-      if (section.layoutId === 'hero-2') return <Hero2 activeDevice={activeDevice} />;
-      if (section.layoutId === 'hero-3') return <Hero3 activeDevice={activeDevice} />;
-      return <Hero1 activeDevice={activeDevice} />;
+      if (section.layoutId === 'hero-2') return <Hero2 activeDevice={activeDevice} sectionId={sectionId} />;
+      if (section.layoutId === 'hero-3') return <Hero3 activeDevice={activeDevice} sectionId={sectionId} />;
+      return <Hero1 activeDevice={activeDevice} sectionId={sectionId} />;
     }
 
     if (section.type === 'features') {
-      if (section.layoutId === 'features-2') return <Features2 activeDevice={activeDevice} />;
-      if (section.layoutId === 'features-3') return <Features3 activeDevice={activeDevice} />;
-      return <Features1 activeDevice={activeDevice} />;
+      if (section.layoutId === 'features-2') return <Features2 activeDevice={activeDevice} sectionId={sectionId} />;
+      if (section.layoutId === 'features-3') return <Features3 activeDevice={activeDevice} sectionId={sectionId} />;
+      return <Features1 activeDevice={activeDevice} sectionId={sectionId} />;
     }
 
     if (section.type === 'content') {
-      if (section.layoutId === 'content-2') return <Content2 activeDevice={activeDevice} />;
-      if (section.layoutId === 'content-3') return <Content3 activeDevice={activeDevice} />;
-      return <Content1 activeDevice={activeDevice} />;
+      if (section.layoutId === 'content-2') return <Content2 activeDevice={activeDevice} sectionId={sectionId} />;
+      if (section.layoutId === 'content-3') return <Content3 activeDevice={activeDevice} sectionId={sectionId} />;
+      return <Content1 activeDevice={activeDevice} sectionId={sectionId} />;
     }
 
     if (section.type === 'testimonials') {
-      if (section.layoutId === 'testimonials-2') return <Testimonials2 activeDevice={activeDevice} />;
-      if (section.layoutId === 'testimonials-3') return <Testimonials3 activeDevice={activeDevice} />;
-      return <Testimonials1 activeDevice={activeDevice} />;
+      if (section.layoutId === 'testimonials-2') return <Testimonials2 activeDevice={activeDevice} sectionId={sectionId} />;
+      if (section.layoutId === 'testimonials-3') return <Testimonials3 activeDevice={activeDevice} sectionId={sectionId} />;
+      return <Testimonials1 activeDevice={activeDevice} sectionId={sectionId} />;
     }
 
     if (section.type === 'pricing') {
-      if (section.layoutId === 'pricing-2') return <Pricing2 activeDevice={activeDevice} />;
-      return <Pricing1 activeDevice={activeDevice} />;
+      if (section.layoutId === 'pricing-2') return <Pricing2 activeDevice={activeDevice} sectionId={sectionId} />;
+      return <Pricing1 activeDevice={activeDevice} sectionId={sectionId} />;
     }
 
     if (section.type === 'cta') {
-      if (section.layoutId === 'cta-2') return <CTA2 activeDevice={activeDevice} />;
-      return <CTA1 activeDevice={activeDevice} />;
+      if (section.layoutId === 'cta-2') return <CTA2 activeDevice={activeDevice} sectionId={sectionId} />;
+      return <CTA1 activeDevice={activeDevice} sectionId={sectionId} />;
     }
 
     if (section.type === 'footer') {
-      if (section.layoutId === 'footer-2') return <Footer2 activeDevice={activeDevice} />;
-      if (section.layoutId === 'footer-3') return <Footer3 activeDevice={activeDevice} />;
-      return <Footer1 activeDevice={activeDevice} />;
+      if (section.layoutId === 'footer-2') return <Footer2 activeDevice={activeDevice} sectionId={sectionId} />;
+      if (section.layoutId === 'footer-3') return <Footer3 activeDevice={activeDevice} sectionId={sectionId} />;
+      return <Footer1 activeDevice={activeDevice} sectionId={sectionId} />;
     }
   };
 

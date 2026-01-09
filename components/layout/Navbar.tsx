@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { DeviceType } from "@/app/store/useEditorStore";
+import { EditableText } from "@/components/editor/EditableText";
 
 export const Navbar1 = ({ activeDevice, sectionId }: { activeDevice: DeviceType; sectionId: string }) => {
     return (
@@ -14,14 +15,16 @@ export const Navbar1 = ({ activeDevice, sectionId }: { activeDevice: DeviceType;
             }}
         >
             <div className="font-bold text-xl tracking-tight flex items-center gap-2" style={{ color: sectionId.includes("page-1") ? "#fff" : "#1a1a2e" }}>
-                <span>OpenWire</span>
+                <span className="hover:outline hover:outline-2 hover:outline-blue-500">
+                    <EditableText sectionId={sectionId} field="logo" defaultValue="OpenWire" />
+                </span>
             </div>
 
             <div className="flex gap-8 items-center">
                 {activeDevice !== "mobile" && (
-                    ["Product", "Solutions", "Resources", "Pricing"].map((item) => (
-                        <span key={item} className="text-sm font-medium cursor-pointer hover:opacity-80 transition-opacity" style={{ color: sectionId.includes("page-1") ? "#ccc" : "#4b5563" }}>
-                            {item}
+                    ["Product", "Solutions", "Resources", "Pricing"].map((item, index) => (
+                        <span key={item} className="text-sm font-medium cursor-pointer hover:opacity-80 transition-opacity hover:outline hover:outline-2 hover:outline-blue-500" style={{ color: sectionId.includes("page-1") ? "#ccc" : "#4b5563" }}>
+                            <EditableText sectionId={sectionId} field={`link-${index}`} defaultValue={item} />
                         </span>
                     ))
                 )}
@@ -33,12 +36,12 @@ export const Navbar1 = ({ activeDevice, sectionId }: { activeDevice: DeviceType;
                         <span className={`w-6 h-0.5 rounded-full ${sectionId.includes("page-1") ? "bg-white" : "bg-gray-800"}`}></span>
                     </div>
                 ) : (
-                    <button className="px-5 py-2 rounded-full text-sm font-medium bg-blue-600 text-white hover:bg-blue-700 transition-colors shadow-lg shadow-blue-500/20">
-                        Get Started
+                    <button className="px-5 py-2 rounded-full text-sm font-medium bg-blue-600 text-white hover:bg-blue-700 transition-colors shadow-lg shadow-blue-500/20 hover:outline hover:outline-2 hover:outline-blue-500">
+                        <EditableText sectionId={sectionId} field="cta" defaultValue="Get Started" />
                     </button>
                 )}
             </div>
-        </div>
+        </div >
     );
 };
 
@@ -65,10 +68,10 @@ export const Navbar2 = ({ activeDevice, sectionId }: { activeDevice: DeviceType;
                     <div className="flex items-center">
                         <div className="flex items-center gap-2 cursor-pointer">
                             <span
-                                className="font-bold text-lg transition-colors duration-200"
+                                className="font-bold text-lg transition-colors duration-200 hover:outline hover:outline-2 hover:outline-blue-500"
                                 style={{ color: isDark ? "#fff" : "#1a1a2e" }}
                             >
-                                OpenWire
+                                <EditableText sectionId={sectionId} field="logo" defaultValue="OpenWire" />
                             </span>
                         </div>
 
@@ -79,12 +82,12 @@ export const Navbar2 = ({ activeDevice, sectionId }: { activeDevice: DeviceType;
                                     {["Product", "Solutions", "Resources", "Pricing"].map((item) => (
                                         <li key={item}>
                                             <span
-                                                className="px-3 py-2 text-sm font-medium cursor-pointer transition-colors duration-200 rounded-lg"
+                                                className="px-3 py-2 text-sm font-medium cursor-pointer transition-colors duration-200 rounded-lg hover:outline hover:outline-2 hover:outline-blue-500"
                                                 style={{
                                                     color: isDark ? "#ccc" : "#4b5563",
                                                 }}
                                             >
-                                                {item}
+                                                <EditableText sectionId={sectionId} field={`link-${item}`} defaultValue={item} />
                                             </span>
                                         </li>
                                     ))}
@@ -97,9 +100,9 @@ export const Navbar2 = ({ activeDevice, sectionId }: { activeDevice: DeviceType;
                     {!isMobile && (
                         <div className="flex items-center">
                             <button
-                                className="px-5 py-2 rounded-full text-sm font-medium bg-blue-600 text-white hover:bg-blue-700 transition-colors shadow-lg shadow-blue-500/20"
+                                className="px-5 py-2 rounded-full text-sm font-medium bg-blue-600 text-white hover:bg-blue-700 transition-colors shadow-lg shadow-blue-500/20 hover:outline hover:outline-2 hover:outline-blue-500"
                             >
-                                Get Started
+                                <EditableText sectionId={sectionId} field="cta" defaultValue="Get Started" />
                             </button>
                         </div>
                     )}
@@ -154,10 +157,10 @@ export const Navbar2 = ({ activeDevice, sectionId }: { activeDevice: DeviceType;
                         {["Product", "Solutions", "Resources", "Pricing"].map((item) => (
                             <li key={item}>
                                 <span
-                                    className="block px-4 py-3 text-sm font-medium rounded-lg transition-colors duration-200 cursor-pointer"
+                                    className="block px-4 py-3 text-sm font-medium rounded-lg transition-colors duration-200 cursor-pointer hover:outline hover:outline-2 hover:outline-blue-500"
                                     style={{ color: isDark ? "#ccc" : "#4b5563" }}
                                 >
-                                    {item}
+                                    <EditableText sectionId={sectionId} field={`mobile-link-${item}`} defaultValue={item} />
                                 </span>
                             </li>
                         ))}
@@ -167,9 +170,9 @@ export const Navbar2 = ({ activeDevice, sectionId }: { activeDevice: DeviceType;
                         style={{ borderTop: isDark ? "1px solid rgba(255,255,255,0.1)" : "1px solid rgba(0,0,0,0.1)" }}
                     >
                         <button
-                            className="w-full px-5 py-2.5 rounded-full text-sm font-medium bg-blue-600 text-white hover:bg-blue-700 transition-colors"
+                            className="w-full px-5 py-2.5 rounded-full text-sm font-medium bg-blue-600 text-white hover:bg-blue-700 transition-colors hover:outline hover:outline-2 hover:outline-blue-500"
                         >
-                            Get Started
+                            <EditableText sectionId={sectionId} field="mobile-cta" defaultValue="Get Started" />
                         </button>
                     </div>
                 </div>

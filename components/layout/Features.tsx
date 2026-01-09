@@ -1,16 +1,23 @@
 import { DeviceType } from "@/app/store/useEditorStore";
 
+import { EditableText } from "@/components/editor/EditableText";
+
 interface SectionProps {
     activeDevice: DeviceType;
+    sectionId: string;
 }
 
-export const Features1 = ({ activeDevice }: SectionProps) => {
+export const Features1 = ({ activeDevice, sectionId }: SectionProps) => {
     return (
         <div className="w-full px-8 py-20 bg-white">
             <div className="max-w-7xl mx-auto">
                 <div className="text-center mb-16">
-                    <h2 className="text-3xl font-bold text-gray-900 mb-4">Amazing Features</h2>
-                    <p className="text-gray-600 max-w-2xl mx-auto">Discover what makes our platform stand out from the rest.</p>
+                    <h2 className="text-3xl font-bold text-gray-900 mb-4 hover:outline hover:outline-2 hover:outline-blue-500">
+                        <EditableText sectionId={sectionId} field="title" defaultValue="Amazing Features" />
+                    </h2>
+                    <p className="text-gray-600 max-w-2xl mx-auto hover:outline hover:outline-2 hover:outline-blue-500">
+                        <EditableText sectionId={sectionId} field="description" defaultValue="Discover what makes our platform stand out from the rest." />
+                    </p>
                 </div>
                 <div className={`grid gap-12 ${activeDevice === 'mobile' ? 'grid-cols-1' : 'grid-cols-3'}`}>
                     {[
@@ -24,8 +31,12 @@ export const Features1 = ({ activeDevice }: SectionProps) => {
                         <div key={i} className="flex gap-4 items-start">
                             <div className="text-2xl p-3 bg-gray-100 rounded-lg">{f.icon}</div>
                             <div>
-                                <h3 className="font-bold text-lg mb-2 text-gray-900">{f.title}</h3>
-                                <p className="text-gray-600 leading-relaxed">{f.desc}</p>
+                                <h3 className="font-bold text-lg mb-2 text-gray-900 hover:outline hover:outline-2 hover:outline-blue-500">
+                                    <EditableText sectionId={sectionId} field={`feature-${i}-title`} defaultValue={f.title} />
+                                </h3>
+                                <p className="text-gray-600 leading-relaxed hover:outline hover:outline-2 hover:outline-blue-500">
+                                    <EditableText sectionId={sectionId} field={`feature-${i}-desc`} defaultValue={f.desc} />
+                                </p>
                             </div>
                         </div>
                     ))}
@@ -35,7 +46,7 @@ export const Features1 = ({ activeDevice }: SectionProps) => {
     );
 };
 
-export const Features2 = ({ activeDevice }: SectionProps) => {
+export const Features2 = ({ activeDevice, sectionId }: SectionProps) => {
     return (
         <div className="w-full px-8 py-20 bg-gray-50">
             <div className="max-w-6xl mx-auto space-y-24">
@@ -49,14 +60,18 @@ export const Features2 = ({ activeDevice }: SectionProps) => {
                             <div className="w-16 h-16 bg-blue-100 rounded-2xl flex items-center justify-center text-3xl">
                                 {f.icon}
                             </div>
-                            <h3 className="text-3xl font-bold text-gray-900">{f.title}</h3>
-                            <p className="text-lg text-gray-600 leading-relaxed">{f.desc}</p>
-                            <button className="text-blue-600 font-semibold hover:text-blue-700 flex items-center gap-2">
-                                Learn more <span>→</span>
+                            <h3 className="text-3xl font-bold text-gray-900 hover:outline hover:outline-2 hover:outline-blue-500">
+                                <EditableText sectionId={sectionId} field={`feature-${i}-title`} defaultValue={f.title} />
+                            </h3>
+                            <p className="text-lg text-gray-600 leading-relaxed hover:outline hover:outline-2 hover:outline-blue-500">
+                                <EditableText sectionId={sectionId} field={`feature-${i}-desc`} defaultValue={f.desc} />
+                            </p>
+                            <button className="text-blue-600 font-semibold hover:text-blue-700 flex items-center gap-2 hover:outline hover:outline-2 hover:outline-blue-500">
+                                <EditableText sectionId={sectionId} field={`feature-${i}-link`} defaultValue="Learn more" /> <span className="hover:outline hover:outline-2 hover:outline-blue-500">→</span>
                             </button>
                         </div>
-                        <div className="flex-1 bg-white rounded-3xl shadow-xl h-[300px] w-full flex items-center justify-center text-gray-300 font-medium border border-gray-100">
-                            Image Preview
+                        <div className="flex-1 bg-white rounded-3xl shadow-xl h-[300px] w-full flex items-center justify-center text-gray-300 font-medium border border-gray-100 hover:outline hover:outline-2 hover:outline-blue-500">
+                            <EditableText sectionId={sectionId} field={`feature-${i}-image`} defaultValue="Image Preview" />
                         </div>
                     </div>
                 ))}
@@ -65,13 +80,15 @@ export const Features2 = ({ activeDevice }: SectionProps) => {
     );
 };
 
-export const Features3 = ({ activeDevice }: SectionProps) => {
+export const Features3 = ({ activeDevice, sectionId }: SectionProps) => {
     return (
         <div className="w-full px-8 py-24 bg-white">
             <div className="max-w-4xl mx-auto">
                 <div className="space-y-12">
                     <div className="text-center pb-12 border-b border-gray-100">
-                        <h2 className="text-3xl font-bold text-gray-900">Why Choose Us?</h2>
+                        <h2 className="text-3xl font-bold text-gray-900 hover:outline hover:outline-2 hover:outline-blue-500">
+                            <EditableText sectionId={sectionId} field="title" defaultValue="Why Choose Us?" />
+                        </h2>
                     </div>
                     {[
                         { title: "Performance First", desc: "Built for speed and reliability from the ground up." },
@@ -84,8 +101,12 @@ export const Features3 = ({ activeDevice }: SectionProps) => {
                                 {i + 1}
                             </div>
                             <div>
-                                <h3 className="text-xl font-bold text-gray-900 mb-2 group-hover:text-blue-600 transition-colors">{f.title}</h3>
-                                <p className="text-gray-600 text-lg leading-relaxed">{f.desc}</p>
+                                <h3 className="text-xl font-bold text-gray-900 mb-2 group-hover:text-blue-600 transition-colors hover:outline hover:outline-2 hover:outline-blue-500">
+                                    <EditableText sectionId={sectionId} field={`feature-${i}-title`} defaultValue={f.title} />
+                                </h3>
+                                <p className="text-gray-600 text-lg leading-relaxed hover:outline hover:outline-2 hover:outline-blue-500">
+                                    <EditableText sectionId={sectionId} field={`feature-${i}-desc`} defaultValue={f.desc} />
+                                </p>
                             </div>
                         </div>
                     ))}
