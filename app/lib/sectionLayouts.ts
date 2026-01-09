@@ -8,8 +8,8 @@ export interface LayoutOption {
 
 export const SECTION_LAYOUTS: Record<SectionType, LayoutOption[]> = {
     navbar: [
-        { id: "nav-1", name: "Logo Left, Nav Right" },
-        { id: "nav-2", name: "Logo Center, Nav Center" },
+        { id: "nav-1", name: "Standard Full Width" },
+        { id: "nav-2", name: "Floating Pill" },
         { id: "nav-3", name: "Logo Left, Nav Center, CTA Right" },
     ],
     hero: [
