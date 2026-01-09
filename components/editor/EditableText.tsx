@@ -2,6 +2,7 @@
 
 import { useEffect, useState, useRef } from "react";
 import { useEditorStore } from "@/app/store/useEditorStore";
+import { sanitizeText, sanitizeHtml } from "@/lib/sanitize";
 
 interface EditableTextProps {
     sectionId: string;
@@ -32,8 +33,9 @@ export const EditableText = ({
     }, [contentValue]);
 
     const handleBlur = (e: React.FocusEvent<HTMLElement>) => {
-        const newValue = e.target.innerText;
-        setLocalValue(newValue);
+        const rawValue = e.target.innerText;
+        const sanitizedValue = sanitizeText(rawValue);
+        setLocalValue(sanitizedValue);
 
         if (!section) return;
 
@@ -41,7 +43,7 @@ export const EditableText = ({
         updateSectionData(sectionId, {
             content: {
                 ...currentContent,
-                [field]: newValue
+                [field]: sanitizedValue
             }
         });
     };
@@ -59,7 +61,7 @@ export const EditableText = ({
                 e.preventDefault();
             }}
         >
-            {localValue}
+            <span dangerouslySetInnerHTML={{ __html: sanitizeHtml(localValue) }} />
         </Component>
     );
 };

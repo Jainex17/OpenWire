@@ -304,6 +304,7 @@ export default function Home() {
                 <div className="w-full h-[50px] flex items-center pl-4 pr-2 mb-4 rounded-[var(--radius)] justify-between bg-secondary">
                   <p className="text-foreground font-medium text-md flex items-center gap-3">{page.title == "Home" ? <HomeIcon width={20} /> : <FileIcon width={20} />} {page.title}</p>
                   <PageOptionsMenu
+                    pageId={page.id}
                     pageTitle={page.title}
                     isOpen={openPageMenuId === page.id}
                     isOnlyPage={pages.length <= 1}
