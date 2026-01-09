@@ -35,6 +35,8 @@ export const EditableText = ({
         const newValue = e.target.innerText;
         setLocalValue(newValue);
 
+        if (!section) return;
+
         const currentContent = section?.content || {};
         updateSectionData(sectionId, {
             content: {

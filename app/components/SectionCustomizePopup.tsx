@@ -9,10 +9,6 @@ interface SectionCustomizePopupProps {
     section: SectionData | null;
     onLayoutSelect: (layoutId: string) => void;
     onUpdate: (data: Partial<SectionData>) => void;
-    onMoveUp: () => void;
-    onMoveDown: () => void;
-    canMoveUp: boolean;
-    canMoveDown: boolean;
     onClose: () => void;
 }
 
@@ -30,10 +26,6 @@ export default function SectionCustomizePopup({
     section,
     onLayoutSelect,
     onUpdate,
-    onMoveUp,
-    onMoveDown,
-    canMoveUp,
-    canMoveDown,
     onClose,
 }: SectionCustomizePopupProps) {
     const [view, setView] = useState<ViewState>("main");

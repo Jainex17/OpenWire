@@ -58,7 +58,6 @@ export default function Home() {
   const [activeDragId, setActiveDragId] = useState<string | null>(null);
   const [activeDragPageId, setActiveDragPageId] = useState<string | null>(null);
   const [overSectionId, setOverSectionId] = useState<string | null>(null);
-  const [dragDimensions, setDragDimensions] = useState<{ width: number; height: number } | null>(null);
   const [draggedSectionHeight, setDraggedSectionHeight] = useState<number | null>(null);
   const [showTemplateModal, setShowTemplateModal] = useState(false);
   const [templateModalPageId, setTemplateModalPageId] = useState<string | null>(null);
@@ -70,13 +69,11 @@ export default function Home() {
 
   const {
     zoom, panOffset, activeDevice,
-    pages, sections, selectedSectionId, activeTemplate,
+    pages, sections, selectedSectionId,
     setZoom, setPanOffset, setActiveDevice, setSelectedSection,
-    updateSectionLayout, updateSectionData, moveSection, reorderSection,
+    updateSectionLayout, updateSectionData, reorderSection,
     loadTemplate, loadTemplateToPage, addPage, deletePage, duplicatePage, renamePage
   } = useEditorStore();
-
-  const hasContent = pages.some(page => page.sections.length > 0);
 
   const handleTemplateSelect = (templateType: TemplateType) => {
     if (templateModalPageId) {
@@ -145,13 +142,6 @@ export default function Home() {
     if (storedHeight) {
       setDraggedSectionHeight(storedHeight);
     }
-
-    if (active.rect.current.initial) {
-      setDragDimensions({
-        width: active.rect.current.initial.width,
-        height: active.rect.current.initial.height,
-      });
-    }
   };
 
   const handleDragOver = (event: DragOverEvent) => {
@@ -167,7 +157,6 @@ export default function Home() {
     setActiveDragId(null);
     setActiveDragPageId(null);
     setOverSectionId(null);
-    setDragDimensions(null);
     setDraggedSectionHeight(null);
 
     if (over && active.id !== over.id && pageId) {
@@ -223,37 +212,10 @@ export default function Home() {
     return () => {
       canvas.removeEventListener("wheel", handleWheel);
     };
-  }, [zoom, panOffset, handleZoomChange, setPanOffset]);
+  }, [zoom, panOffset, setPanOffset, setZoom]);
 
   const currentDevice = DEVICE_DIMENSIONS[activeDevice];
   const selectedSectionData = selectedSectionId ? sections[selectedSectionId] : null;
-
-  const selectedSectionInfo = selectedSectionId ? (() => {
-    for (const page of pages) {
-      const index = page.sections.indexOf(selectedSectionId);
-      if (index !== -1) {
-        return {
-          pageId: page.id,
-          index,
-          canMoveUp: index > 0,
-          canMoveDown: index < page.sections.length - 1
-        };
-      }
-    }
-    return null;
-  })() : null;
-
-  const handleMoveUp = () => {
-    if (selectedSectionId && selectedSectionInfo) {
-      moveSection(selectedSectionInfo.pageId, selectedSectionId, 'up');
-    }
-  };
-
-  const handleMoveDown = () => {
-    if (selectedSectionId && selectedSectionInfo) {
-      moveSection(selectedSectionInfo.pageId, selectedSectionId, 'down');
-    }
-  };
 
   const renderSectionContent = (sectionId: string) => {
     const section = sections[sectionId];
@@ -342,7 +304,6 @@ export default function Home() {
                 <div className="w-full h-[50px] flex items-center pl-4 pr-2 mb-4 rounded-[var(--radius)] justify-between bg-secondary">
                   <p className="text-foreground font-medium text-md flex items-center gap-3">{page.title == "Home" ? <HomeIcon width={20} /> : <FileIcon width={20} />} {page.title}</p>
                   <PageOptionsMenu
-                    pageId={page.id}
                     pageTitle={page.title}
                     isOpen={openPageMenuId === page.id}
                     isOnlyPage={pages.length <= 1}
@@ -459,10 +420,6 @@ export default function Home() {
           section={selectedSectionData || null}
           onLayoutSelect={handleLayoutSelect}
           onUpdate={handleUpdateSection}
-          onMoveUp={handleMoveUp}
-          onMoveDown={handleMoveDown}
-          canMoveUp={selectedSectionInfo?.canMoveUp ?? false}
-          canMoveDown={selectedSectionInfo?.canMoveDown ?? false}
           onClose={() => setSelectedSection(null)}
         />
 
