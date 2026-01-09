@@ -38,11 +38,12 @@ const templates: TemplateOption[] = [
 
 interface TemplateSelectionModalProps {
     isOpen: boolean;
-    onSelect: (templateType: TemplateType) => void;
+    onSelect: (templateType: TemplateType, pageId?: string | null) => void;
     onClose: () => void;
+    pageId?: string | null;
 }
 
-export default function TemplateSelectionModal({ isOpen, onSelect, onClose }: TemplateSelectionModalProps) {
+export default function TemplateSelectionModal({ isOpen, onSelect, onClose, pageId }: TemplateSelectionModalProps) {
     if (!isOpen) return null;
 
     return (
@@ -75,7 +76,7 @@ export default function TemplateSelectionModal({ isOpen, onSelect, onClose }: Te
                         {templates.map((template) => (
                             <button
                                 key={template.id}
-                                onClick={() => onSelect(template.id)}
+                                onClick={() => onSelect(template.id, pageId)}
                                 className="group relative bg-gray-50 rounded-xl p-6 text-left hover:bg-gray-100 transition-all duration-200 border-2 border-transparent hover:border-blue-500 hover:shadow-lg"
                             >
                                 <h3 className="text-lg font-bold text-gray-900 mb-2">{template.name}</h3>
