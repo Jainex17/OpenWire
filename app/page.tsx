@@ -13,6 +13,7 @@ import {
 import { useEditorStore, TemplateType } from "./store/useEditorStore";
 import { useDragAndDrop } from "./hooks/useDragAndDrop";
 import Canvas from "./components/Canvas";
+import PagePreviewModal from "./components/PagePreviewModal";
 
 const MIN_ZOOM = 5;
 const MAX_ZOOM = 200;
@@ -24,6 +25,7 @@ export default function Home() {
   const [showTemplateModal, setShowTemplateModal] = useState(false);
   const [templateModalPageId, setTemplateModalPageId] = useState<string | null>(null);
   const [openPageMenuId, setOpenPageMenuId] = useState<string | null>(null);
+  const [previewPageId, setPreviewPageId] = useState<string | null>(null);
 
   const captureSectionHeight = useCallback((id: string, height: number) => {
     sectionHeightsRef.current.set(id, height);
@@ -43,7 +45,8 @@ export default function Home() {
     selectedSectionId,
     setZoom, setPanOffset, setActiveDevice, setSelectedSection,
     updateSectionLayout, updateSectionData,
-    loadTemplate, loadTemplateToPage, addPage, deletePage, duplicatePage, renamePage
+    loadTemplate, loadTemplateToPage, addPage, deletePage, duplicatePage, renamePage,
+    pages, sections,
   } = useEditorStore();
 
   const handleTemplateSelect = (templateType: TemplateType, pageId?: string | null) => {
@@ -97,6 +100,14 @@ export default function Home() {
   const handleShowTemplateModal = (pageId: string) => {
     setShowTemplateModal(true);
     setTemplateModalPageId(pageId);
+  };
+
+  const handlePreviewPage = (pageId: string) => {
+    setPreviewPageId(pageId);
+  };
+
+  const handleClosePreview = () => {
+    setPreviewPageId(null);
   };
 
   const handleDragStartWithHeight = (event: DragStartEvent) => {
@@ -199,6 +210,13 @@ export default function Home() {
           setShowTemplateModal(false);
           setTemplateModalPageId(null);
         }}
+        onPreviewPage={handlePreviewPage}
+      />
+      <PagePreviewModal
+        isOpen={previewPageId !== null}
+        onClose={handleClosePreview}
+        page={previewPageId ? pages.find(p => p.id === previewPageId) || null : null}
+        sections={sections}
       />
     </DndContext>
   );

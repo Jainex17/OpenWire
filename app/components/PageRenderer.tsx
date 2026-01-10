@@ -31,6 +31,7 @@ interface PageRendererProps {
   onDuplicatePage: (pageId: string) => void;
   onDeletePage: (pageId: string) => void;
   onShowTemplateModal: (pageId: string) => void;
+  onPreviewPage: (pageId: string) => void;
 }
 
 export default function PageRenderer({
@@ -50,6 +51,7 @@ export default function PageRenderer({
   onDuplicatePage,
   onDeletePage,
   onShowTemplateModal,
+  onPreviewPage,
 }: PageRendererProps) {
   const { sections, pages } = useEditorStore();
 
@@ -69,6 +71,7 @@ export default function PageRenderer({
           onRename={(newTitle) => onRenamePage(page.id, newTitle)}
           onDuplicate={() => onDuplicatePage(page.id)}
           onDelete={() => onDeletePage(page.id)}
+          onPreview={() => onPreviewPage(page.id)}
         />
       </div>
 

@@ -55,6 +55,7 @@ interface CanvasProps {
   onAddPage: () => void;
   onShowTemplateModal: (pageId: string) => void;
   onCloseTemplateModal: () => void;
+  onPreviewPage: (pageId: string) => void;
 }
 
 export default function Canvas({
@@ -87,6 +88,7 @@ export default function Canvas({
   onAddPage,
   onShowTemplateModal,
   onCloseTemplateModal,
+  onPreviewPage,
 }: CanvasProps) {
   const { pages, sections } = useEditorStore();
   const currentDevice = DEVICE_DIMENSIONS[activeDevice];
@@ -134,6 +136,7 @@ export default function Canvas({
               onDuplicatePage={onDuplicatePage}
               onDeletePage={onDeletePage}
               onShowTemplateModal={onShowTemplateModal}
+              onPreviewPage={onPreviewPage}
             />
           ))}
         </div>

@@ -3,6 +3,7 @@
 import { useEffect, useState, useRef } from "react";
 import { useEditorStore } from "@/app/store/useEditorStore";
 import { sanitizeText, sanitizeHtml } from "@/lib/sanitize";
+import { usePreview } from "@/app/context/PreviewContext";
 
 interface EditableTextProps {
     sectionId: string;
@@ -21,6 +22,7 @@ export const EditableText = ({
     style,
     as: Component = "span"
 }: EditableTextProps) => {
+    const { isPreview } = usePreview();
     const { sections, updateSectionData } = useEditorStore();
     const section = sections[sectionId];
     const contentValue = (section?.content?.[field] as string) || defaultValue;
@@ -47,6 +49,17 @@ export const EditableText = ({
             }
         });
     };
+
+    if (isPreview) {
+        return (
+            <Component
+                className={className}
+                style={style}
+            >
+                <span dangerouslySetInnerHTML={{ __html: sanitizeHtml(localValue) }} />
+            </Component>
+        );
+    }
 
     return (
         <Component

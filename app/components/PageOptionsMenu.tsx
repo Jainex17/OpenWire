@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { MoreHorizontalIcon, Trash2Icon, CopyIcon, PencilIcon } from "lucide-react";
+import { MoreHorizontalIcon, Trash2Icon, CopyIcon, PencilIcon, EyeIcon } from "lucide-react";
 import {
     Dialog,
     DialogContent,
@@ -33,6 +33,7 @@ interface PageOptionsMenuProps {
     onRename: (newTitle: string) => void;
     onDuplicate: () => void;
     onDelete: () => void;
+    onPreview: () => void;
 }
 
 export default function PageOptionsMenu({
@@ -45,6 +46,7 @@ export default function PageOptionsMenu({
     onRename,
     onDuplicate,
     onDelete,
+    onPreview,
 }: PageOptionsMenuProps) {
     const [showRenameDialog, setShowRenameDialog] = useState(false);
     const [showDeleteDialog, setShowDeleteDialog] = useState(false);
@@ -83,6 +85,11 @@ export default function PageOptionsMenu({
         setShowDeleteDialog(false);
     };
 
+    const handlePreviewClick = () => {
+        onPreview();
+        onClose();
+    };
+
     return (
         <>
             <div className="relative">
@@ -114,6 +121,13 @@ export default function PageOptionsMenu({
                         >
                             <CopyIcon width={16} />
                             Duplicate Page
+                        </button>
+                        <button
+                            onClick={handlePreviewClick}
+                            className="w-full px-3 py-2 text-left text-sm text-foreground hover:bg-accent flex items-center gap-2 transition-colors"
+                        >
+                            <EyeIcon width={16} />
+                            Preview Page
                         </button>
                         <div className="h-px bg-border my-1" />
                         <button

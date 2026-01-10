@@ -167,3 +167,8 @@
     @apply bg-background text-foreground;
   }
 }
+
+.preview-mode *:hover {
+  outline: none !important;
+  border-color: inherit !important;
+}
