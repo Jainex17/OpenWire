@@ -7,7 +7,7 @@ import { EditableText } from "@/components/editor/EditableText";
 export const Navbar1 = ({ activeDevice, sectionId }: { activeDevice: DeviceType; sectionId: string }) => {
     return (
         <div
-            className="w-full flex items-center justify-between px-8 backdrop-blur-md bg-opacity-90 sticky top-0 z-50 transition-all duration-300"
+            className="w-full flex items-center justify-between px-8 backdrop-blur-md bg-opacity-90 sticky top-0 z-50 transition-all duration-300 border-none"
             style={{
                 height: activeDevice === "mobile" ? "60px" : "80px",
                 backgroundColor: sectionId.includes("page-1") ? "rgba(26, 26, 46, 0.95)" : "rgba(255, 255, 255, 0.95)",

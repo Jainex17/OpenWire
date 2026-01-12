@@ -22,6 +22,7 @@ import {
 } from "@/components/ui/alert-dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 
 interface PageOptionsMenuProps {
     pageId: string;
@@ -93,52 +94,42 @@ export default function PageOptionsMenu({
     return (
         <>
             <div className="relative">
-                <button
-                    onClick={(e) => {
-                        e.stopPropagation();
-                        onToggle();
-                    }}
-                    className="rounded-[var(--radius)] py-2 px-3 hover:bg-accent hover:text-foreground"
-                >
-                    <MoreHorizontalIcon width={22} className="cursor-pointer" />
-                </button>
-
-                {isOpen && (
-                    <div
-                        className="absolute right-0 top-full mt-1 w-48 bg-popover border border-border rounded-[var(--radius)] shadow-lg z-150 py-1 overflow-hidden"
-                        onClick={(e) => e.stopPropagation()}
-                    >
-                        <button
-                            onClick={handleRenameClick}
-                            className="w-full px-3 py-2 text-left text-sm text-foreground hover:bg-accent flex items-center gap-2 transition-colors"
+                <DropdownMenu>
+                    <DropdownMenuTrigger asChild>
+                        <Button
+                            variant={"ghost"}
+                            className="rounded-[var(--radius)] py-2 px-3 hover:bg-accent hover:text-foreground cursor-pointer"
                         >
-                            <PencilIcon width={16} />
-                            Rename Page
-                        </button>
-                        <button
-                            onClick={handleDuplicateClick}
-                            className="w-full px-3 py-2 text-left text-sm text-foreground hover:bg-accent flex items-center gap-2 transition-colors"
-                        >
-                            <CopyIcon width={16} />
-                            Duplicate Page
-                        </button>
-                        <button
-                            onClick={handlePreviewClick}
-                            className="w-full px-3 py-2 text-left text-sm text-foreground hover:bg-accent flex items-center gap-2 transition-colors"
-                        >
-                            <EyeIcon width={16} />
-                            Preview Page
-                        </button>
-                        <div className="h-px bg-border my-1" />
-                        <button
-                            onClick={handleDeleteClick}
-                            className="w-full px-3 py-2 text-left text-sm text-destructive hover:bg-destructive/10 flex items-center gap-2 transition-colors"
-                        >
-                            <Trash2Icon width={16} />
-                            Delete Page
-                        </button>
-                    </div>
-                )}
+                            <MoreHorizontalIcon width={22} className="cursor-pointer" />
+                        </Button>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent className="z-100 bg-primary-foreground text-secondary-foreground border-none">
+                        <DropdownMenuItem onClick={handleRenameClick}>
+                            <PencilIcon width={22} className="cursor-pointer" />
+                            <span>
+                                Rename Page
+                            </span>
+                        </DropdownMenuItem>
+                        <DropdownMenuItem onClick={handleDuplicateClick}>
+                            <CopyIcon width={22} className="cursor-pointer" />
+                            <span>
+                                Duplicate Page
+                            </span>
+                        </DropdownMenuItem>
+                        <DropdownMenuItem onClick={handlePreviewClick}>
+                            <EyeIcon width={22} className="cursor-pointer" />
+                            <span>
+                                Preview Page
+                            </span>
+                        </DropdownMenuItem>
+                        <DropdownMenuItem onClick={handleDeleteClick}>
+                            <Trash2Icon width={22} className="cursor-pointer" />
+                            <span>
+                                Delete Page
+                            </span>
+                        </DropdownMenuItem>
+                    </DropdownMenuContent>
+                </DropdownMenu>
             </div>
 
             <Dialog open={showRenameDialog} onOpenChange={setShowRenameDialog}>
@@ -170,7 +161,7 @@ export default function PageOptionsMenu({
             </Dialog>
 
             <AlertDialog open={showDeleteDialog} onOpenChange={setShowDeleteDialog}>
-                <AlertDialogContent>
+                <AlertDialogContent className="border-none">
                     <AlertDialogHeader>
                         <AlertDialogTitle>
                             {isOnlyPage ? "Cannot Delete Page" : "Delete Page"}
