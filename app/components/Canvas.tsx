@@ -1,6 +1,7 @@
 import { DragOverlay, defaultDropAnimationSideEffects, type DropAnimation } from "@dnd-kit/core";
 import { useEditorStore, TemplateType } from "../store/useEditorStore";
 import CanvasToolbar from "./CanvasToolbar";
+import CanvasTopToolbar from "./CanvasTopToolbar";
 import SectionCustomizePopup from "./SectionCustomizePopup";
 import TemplateSelectionModal from "./TemplateSelectionModal";
 import Sidebar from "./Sidebar";
@@ -152,6 +153,8 @@ export default function Canvas({
         onUpdate={onUpdateSection}
         onClose={() => onSectionSelect("")}
       />
+
+      <CanvasTopToolbar />
 
       <CanvasToolbar
         zoom={zoom}

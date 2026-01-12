@@ -162,10 +162,18 @@ export default function Home() {
       }
     };
 
+    const handleEsc = (e: KeyboardEvent) => {
+      if (e.key === "Escape") {
+        handleClosePreview();
+      }
+    };
+
     canvas.addEventListener("wheel", handleWheel, { passive: false });
+    document.addEventListener("keydown", handleEsc);
 
     return () => {
       canvas.removeEventListener("wheel", handleWheel);
+      document.removeEventListener("keydown", handleEsc);
     };
   }, [zoom, panOffset, setPanOffset, setZoom]);
 
