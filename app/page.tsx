@@ -3,7 +3,7 @@
 import { useEffect, useRef, useCallback, useState } from "react";
 import {
   DndContext,
-  closestCenter,
+  pointerWithin,
   PointerSensor,
   useSensor,
   useSensors,
@@ -114,9 +114,15 @@ export default function Home() {
     const { active } = event;
     const sectionId = active.id as string;
 
-    const storedHeight = sectionHeightsRef.current.get(sectionId);
-    if (storedHeight) {
-      setDraggedSectionHeight(storedHeight);
+    const sectionElement = document.querySelector(`[data-section-id="${sectionId}"]`);
+    if (sectionElement) {
+      const dragSectionHeight = sectionElement.clientHeight;
+      setDraggedSectionHeight(dragSectionHeight);
+    } else {
+      const storedHeight = sectionHeightsRef.current.get(sectionId);
+      if (storedHeight) {
+        setDraggedSectionHeight(storedHeight);
+      }
     }
 
     handleDragStart(event);
@@ -180,7 +186,7 @@ export default function Home() {
   return (
     <DndContext
       sensors={sensors}
-      collisionDetection={closestCenter}
+      collisionDetection={pointerWithin}
       onDragStart={handleDragStartWithHeight}
       onDragOver={handleDragOver}
       onDragEnd={handleDragEndWithCleanup}

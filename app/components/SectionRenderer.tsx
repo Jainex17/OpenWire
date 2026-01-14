@@ -15,7 +15,7 @@ interface SectionRendererProps {
 export default function SectionRenderer({ sectionId }: SectionRendererProps) {
   const { sections, activeDevice } = useEditorStore();
   const section = sections[sectionId];
-  
+
   if (!section) return null;
 
   if (section.type === 'navbar') {

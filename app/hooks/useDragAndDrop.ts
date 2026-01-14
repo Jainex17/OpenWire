@@ -1,4 +1,4 @@
-import { useCallback, useState } from "react";
+import { useCallback, useState, useRef } from "react";
 import {
   DragStartEvent,
   DragOverEvent,
@@ -10,6 +10,8 @@ export function useDragAndDrop() {
   const [activeDragId, setActiveDragId] = useState<string | null>(null);
   const [activeDragPageId, setActiveDragPageId] = useState<string | null>(null);
   const [overSectionId, setOverSectionId] = useState<string | null>(null);
+  const lastOverIdRef = useRef<string | null>(null);
+  const lastUpdateTimeRef = useRef<number>(0);
 
   const { pages, reorderSection } = useEditorStore();
 
@@ -17,6 +19,9 @@ export function useDragAndDrop() {
     const { active } = event;
     const sectionId = active.id as string;
     setActiveDragId(sectionId);
+
+    lastOverIdRef.current = null;
+    lastUpdateTimeRef.current = 0;
 
     for (const page of pages) {
       if (page.sections.includes(sectionId)) {
@@ -29,12 +34,28 @@ export function useDragAndDrop() {
   const handleDragOver = useCallback((event: DragOverEvent) => {
     const { over } = event;
     const overId = over?.id as string | null;
-    setOverSectionId(overId);
-  }, []);
+
+    if (overId === activeDragId) {
+      return;
+    }
+
+    const now = Date.now();
+    if (overId !== lastOverIdRef.current) {
+      if (now - lastUpdateTimeRef.current < 50) {
+        return;
+      }
+      lastOverIdRef.current = overId;
+      lastUpdateTimeRef.current = now;
+      setOverSectionId(overId);
+    }
+  }, [activeDragId]);
 
   const handleDragEnd = useCallback((event: DragEndEvent) => {
     const { active, over } = event;
     const pageId = activeDragPageId;
+
+    lastOverIdRef.current = null;
+    lastUpdateTimeRef.current = 0;
 
     setActiveDragId(null);
     setActiveDragPageId(null);
@@ -45,9 +66,10 @@ export function useDragAndDrop() {
       if (!page) return;
 
       const oldIndex = page.sections.indexOf(active.id as string);
-      const newIndex = page.sections.indexOf(over.id as string);
+      const targetIndex = page.sections.indexOf(over.id as string);
 
-      if (oldIndex !== -1 && newIndex !== -1) {
+      if (oldIndex !== -1 && targetIndex !== -1) {
+        const newIndex = oldIndex < targetIndex ? targetIndex - 1 : targetIndex;
         reorderSection(pageId, active.id as string, newIndex);
       }
     }

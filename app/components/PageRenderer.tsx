@@ -20,9 +20,9 @@ interface PageRendererProps {
   activeDragId: string | null;
   overSectionId: string | null;
   activeDragPageId: string | null;
-  draggedSectionHeight: number | null;
   selectedSectionId: string | null;
   openPageMenuId: string | null;
+  draggedSectionHeight: number | null;
   onSectionSelect: (id: string) => void;
   onHeightCapture: (id: string, height: number) => void;
   onTogglePageMenu: (pageId: string) => void;
@@ -40,9 +40,9 @@ export default function PageRenderer({
   activeDragId,
   overSectionId,
   activeDragPageId,
-  draggedSectionHeight,
   selectedSectionId,
   openPageMenuId,
+  draggedSectionHeight,
   onSectionSelect,
   onHeightCapture,
   onTogglePageMenu,
@@ -54,6 +54,8 @@ export default function PageRenderer({
   onPreviewPage,
 }: PageRendererProps) {
   const { sections, pages } = useEditorStore();
+
+  const isDraggingOnPage = activeDragId && activeDragPageId === page.id;
 
   return (
     <div className="flex flex-col items-center">
@@ -96,14 +98,19 @@ export default function PageRenderer({
               {page.sections.map((sectionId) => {
                 const section = sections[sectionId];
                 if (!section) return null;
+
+                const showPlaceholder = isDraggingOnPage &&
+                  sectionId === overSectionId &&
+                  sectionId !== activeDragId;
+
                 return (
                   <ClickableSection
                     key={sectionId}
                     id={sectionId}
                     type={section.type}
-                    isSelected={selectedSectionId === sectionId}
-                    isDropTarget={overSectionId === sectionId && activeDragId !== sectionId && activeDragPageId === page.id}
-                    draggedHeight={draggedSectionHeight}
+                    isSelected={!!selectedSectionId && selectedSectionId === sectionId}
+                    showPlaceholder={!!showPlaceholder}
+                    draggedSectionHeight={draggedSectionHeight}
                     onSelect={onSectionSelect}
                     onHeightCapture={onHeightCapture}
                   >

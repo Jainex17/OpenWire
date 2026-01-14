@@ -2,14 +2,15 @@
 
 import { ReactNode, useRef, useEffect } from "react";
 import { useSortable } from "@dnd-kit/sortable";
+import { CSS } from "@dnd-kit/utilities";
 import { type SectionType } from "../lib/sectionLayouts";
 
 interface ClickableSectionProps {
     id: string;
     type: SectionType;
     isSelected: boolean;
-    isDropTarget?: boolean;
-    draggedHeight?: number | null;
+    showPlaceholder?: boolean;
+    draggedSectionHeight?: number | null;
     onSelect: (id: string, type: SectionType) => void;
     onHeightCapture?: (id: string, height: number) => void;
     children: ReactNode;
@@ -20,8 +21,8 @@ export default function ClickableSection({
     id,
     type,
     isSelected,
-    isDropTarget = false,
-    draggedHeight = null,
+    showPlaceholder = false,
+    draggedSectionHeight,
     onSelect,
     onHeightCapture,
     children,
@@ -32,23 +33,45 @@ export default function ClickableSection({
         attributes,
         listeners,
         setNodeRef,
+        transform,
+        transition,
         isDragging,
     } = useSortable({ id });
 
     useEffect(() => {
         if (contentRef.current && onHeightCapture && !isDragging) {
-            const height = contentRef.current.getBoundingClientRect().height;
+            const height = contentRef.current.clientHeight;
             onHeightCapture(id, height);
         }
     }, [id, onHeightCapture, isDragging, children]);
 
+    if (isDragging) {
+        return (
+            <div
+                ref={setNodeRef}
+                data-section-id={id}
+                style={{
+                    height: 0,
+                    overflow: 'hidden',
+                    margin: 0,
+                    padding: 0,
+                    opacity: 0
+                }}
+            />
+        );
+    }
 
     return (
-        <div ref={setNodeRef} className="relative">
-            {isDropTarget && draggedHeight && !isDragging && (
+        <div ref={setNodeRef} className="relative" data-section-id={id}>
+            {showPlaceholder && (
                 <div
-                    className="w-full border-2 border-dashed border-blue-400 rounded-lg bg-blue-50/30 transition-all duration-200"
-                    style={{ height: `${draggedHeight}px` }}
+                    className="w-full border-2 border-dashed border-blue-400 bg-blue-50 rounded"
+                    style={{
+                        height: draggedSectionHeight ? `${draggedSectionHeight}px` : "60px",
+                        marginBottom: "4px",
+                        minHeight: "40px",
+                        pointerEvents: "none"
+                    }}
                 />
             )}
 
@@ -62,9 +85,12 @@ export default function ClickableSection({
                     ? "ring-2 ring-blue-500 z-10"
                     : "hover:ring-1 hover:ring-blue-300"
                     } ${className}`}
-                style={isDragging ? { height: 0, overflow: 'hidden', opacity: 0 } : undefined}
+                style={{
+                    transform: CSS.Transform.toString(transform),
+                    transition,
+                }}
             >
-                {isSelected && !isDragging && (
+                {isSelected && (
                     <div
                         {...attributes}
                         {...listeners}

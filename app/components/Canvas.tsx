@@ -18,11 +18,11 @@ const dropAnimation: DropAnimation = {
   sideEffects: defaultDropAnimationSideEffects({
     styles: {
       active: {
-        opacity: "0.5",
+        opacity: "0.3",
       },
     },
   }),
-  duration: 250,
+  duration: 150,
   easing: "cubic-bezier(0.25, 1, 0.5, 1)",
 };
 
@@ -126,9 +126,9 @@ export default function Canvas({
               activeDragId={activeDragId}
               overSectionId={overSectionId}
               activeDragPageId={activeDragPageId}
-              draggedSectionHeight={draggedSectionHeight}
               selectedSectionId={selectedSectionId}
               openPageMenuId={openPageMenuId}
+              draggedSectionHeight={draggedSectionHeight}
               onSectionSelect={onSectionSelect}
               onHeightCapture={onHeightCapture}
               onTogglePageMenu={onTogglePageMenu}
@@ -169,11 +169,13 @@ export default function Canvas({
           <div
             style={{
               width: currentDevice.width,
+              height: draggedSectionHeight || undefined,
               overflow: 'hidden',
               transform: `scale(${zoom / 100})`,
               transformOrigin: 'top left',
+              pointerEvents: 'none',
             }}
-            className="shadow-2xl ring-2 ring-blue-500 rounded-lg bg-white cursor-grabbing"
+            className="shadow-2xl ring-2 ring-blue-500 rounded-lg bg-white cursor-grabbing opacity-80"
           >
             <SectionRenderer sectionId={activeDragId} />
           </div>
