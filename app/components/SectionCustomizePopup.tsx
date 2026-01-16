@@ -3,12 +3,22 @@
 import { useState } from "react";
 import { SECTION_LAYOUTS } from "../lib/sectionLayouts";
 import { type SectionData } from "../store/useEditorStore";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 
 interface SectionCustomizePopupProps {
     isOpen: boolean;
     section: SectionData | null;
     onLayoutSelect: (layoutId: string) => void;
     onUpdate: (data: Partial<SectionData>) => void;
+    onDelete: () => void;
     onClose: () => void;
 }
 
@@ -26,9 +36,11 @@ export default function SectionCustomizePopup({
     section,
     onLayoutSelect,
     onUpdate,
+    onDelete,
     onClose,
 }: SectionCustomizePopupProps) {
     const [view, setView] = useState<ViewState>("main");
+    const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
 
     const initialName = section?.name || (section?.type ? section.type.charAt(0).toUpperCase() + section.type.slice(1) : "");
     const [name, setName] = useState(initialName);
@@ -131,6 +143,16 @@ export default function SectionCustomizePopup({
                                     <span className="text-sm font-medium">Scheme</span>
                                 </button>
                             </div>
+
+                            <button
+                                onClick={() => setShowDeleteConfirm(true)}
+                                className="flex items-center justify-center gap-2 px-4 py-2 mt-3 bg-red-50 border border-red-200 rounded hover:bg-red-100 hover:border-red-400 transition-all group text-red-600"
+                            >
+                                <svg className="w-4 h-4 text-red-500 group-hover:text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                                </svg>
+                                <span className="text-sm font-medium">Delete Section</span>
+                            </button>
                         </div>
                     ) : view === "layout" ? (
                         <div className="flex flex-col gap-2 max-h-[400px] overflow-y-auto pr-1">
@@ -176,6 +198,30 @@ export default function SectionCustomizePopup({
                     )}
                 </div>
             </div>
+
+            <AlertDialog open={showDeleteConfirm} onOpenChange={setShowDeleteConfirm}>
+                <AlertDialogContent className="bg-white rounded-lg shadow-xl border border-[#e0d9ce]">
+                    <AlertDialogHeader>
+                        <AlertDialogTitle className="text-[#3d3529]">Delete Section?</AlertDialogTitle>
+                    </AlertDialogHeader>
+                    <p className="text-[#5c5347] text-sm">This will permanently remove this section from the page. This action cannot be undone.</p>
+                    <AlertDialogFooter>
+                        <AlertDialogCancel className="bg-white border border-[#e0d9ce] text-[#5c5347] hover:bg-[#f5f0e8]">
+                            Cancel
+                        </AlertDialogCancel>
+                        <AlertDialogAction
+                            onClick={() => {
+                                setShowDeleteConfirm(false);
+                                onDelete();
+                                onClose();
+                            }}
+                            className="bg-red-500 text-white hover:bg-red-600"
+                        >
+                            Delete
+                        </AlertDialogAction>
+                    </AlertDialogFooter>
+                </AlertDialogContent>
+            </AlertDialog>
         </div>
     );
 }

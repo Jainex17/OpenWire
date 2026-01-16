@@ -46,6 +46,7 @@ export default function Home() {
     setZoom, setPanOffset, setActiveDevice, setSelectedSection,
     updateSectionLayout, updateSectionData,
     loadTemplate, loadTemplateToPage, addPage, deletePage, duplicatePage, renamePage,
+    removeSection, addSection,
     pages, sections,
   } = useEditorStore();
 
@@ -108,6 +109,13 @@ export default function Home() {
 
   const handleClosePreview = () => {
     setPreviewPageId(null);
+  };
+
+  const handleDeleteSection = (sectionId: string) => {
+    const page = pages.find(p => p.sections.includes(sectionId));
+    if (page) {
+      removeSection(page.id, sectionId);
+    }
   };
 
   const handleDragStartWithHeight = (event: DragStartEvent) => {
@@ -225,6 +233,7 @@ export default function Home() {
           setTemplateModalPageId(null);
         }}
         onPreviewPage={handlePreviewPage}
+        onDeleteSection={handleDeleteSection}
       />
       <PagePreviewModal
         isOpen={previewPageId !== null}

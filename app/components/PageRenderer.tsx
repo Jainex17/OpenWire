@@ -1,3 +1,4 @@
+import React from "react";
 import { FileIcon, HomeIcon } from "lucide-react";
 import { SortableContext, verticalListSortingStrategy } from "@dnd-kit/sortable";
 import { useEditorStore } from "../store/useEditorStore";
@@ -95,7 +96,7 @@ export default function PageRenderer({
             strategy={verticalListSortingStrategy}
           >
             <div className="w-full h-full flex flex-col overflow-visible">
-              {page.sections.map((sectionId) => {
+              {page.sections.map((sectionId, index) => {
                 const section = sections[sectionId];
                 if (!section) return null;
 
@@ -104,18 +105,19 @@ export default function PageRenderer({
                   sectionId !== activeDragId;
 
                 return (
-                  <ClickableSection
-                    key={sectionId}
-                    id={sectionId}
-                    type={section.type}
-                    isSelected={!!selectedSectionId && selectedSectionId === sectionId}
-                    showPlaceholder={!!showPlaceholder}
-                    draggedSectionHeight={draggedSectionHeight}
-                    onSelect={onSectionSelect}
-                    onHeightCapture={onHeightCapture}
-                  >
-                    <SectionRenderer sectionId={sectionId} />
-                  </ClickableSection>
+                  <div key={sectionId} className="relative">
+                    <ClickableSection
+                      id={sectionId}
+                      type={section.type}
+                      isSelected={!!selectedSectionId && selectedSectionId === sectionId}
+                      showPlaceholder={!!showPlaceholder}
+                      draggedSectionHeight={draggedSectionHeight}
+                      onSelect={onSectionSelect}
+                      onHeightCapture={onHeightCapture}
+                    >
+                      <SectionRenderer sectionId={sectionId} />
+                    </ClickableSection>
+                  </div>
                 );
               })}
             </div>

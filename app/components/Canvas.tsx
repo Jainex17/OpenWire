@@ -57,6 +57,7 @@ interface CanvasProps {
   onShowTemplateModal: (pageId: string) => void;
   onCloseTemplateModal: () => void;
   onPreviewPage: (pageId: string) => void;
+  onDeleteSection: (sectionId: string) => void;
 }
 
 export default function Canvas({
@@ -90,6 +91,7 @@ export default function Canvas({
   onShowTemplateModal,
   onCloseTemplateModal,
   onPreviewPage,
+  onDeleteSection,
 }: CanvasProps) {
   const { pages, sections } = useEditorStore();
   const currentDevice = DEVICE_DIMENSIONS[activeDevice];
@@ -151,6 +153,7 @@ export default function Canvas({
         section={selectedSectionData || null}
         onLayoutSelect={onLayoutSelect}
         onUpdate={onUpdateSection}
+        onDelete={() => selectedSectionId && onDeleteSection(selectedSectionId)}
         onClose={() => onSectionSelect("")}
       />
 
