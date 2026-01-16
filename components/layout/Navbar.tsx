@@ -64,7 +64,7 @@ export const Navbar2 = ({ activeDevice, sectionId }: { activeDevice: DeviceType;
                 }}
             >
                 <div className="flex gap-8 justify-between items-center mx-auto h-full transition-all">
-                    {/* Logo Section */}
+                    
                     <div className="flex items-center">
                         <div className="flex items-center gap-2 cursor-pointer">
                             <span
@@ -75,7 +75,7 @@ export const Navbar2 = ({ activeDevice, sectionId }: { activeDevice: DeviceType;
                             </span>
                         </div>
 
-                        {/* Desktop Navigation */}
+
                         {!isMobile && (
                             <div className="flex ml-6">
                                 <ul className="flex items-center space-x-1">
@@ -96,7 +96,7 @@ export const Navbar2 = ({ activeDevice, sectionId }: { activeDevice: DeviceType;
                         )}
                     </div>
 
-                    {/* Desktop Action Button */}
+                    
                     {!isMobile && (
                         <div className="flex items-center">
                             <button
@@ -107,7 +107,7 @@ export const Navbar2 = ({ activeDevice, sectionId }: { activeDevice: DeviceType;
                         </div>
                     )}
 
-                    {/* Mobile Menu Toggle */}
+                    
                     {isMobile && (
                         <button
                             type="button"
@@ -178,5 +178,135 @@ export const Navbar2 = ({ activeDevice, sectionId }: { activeDevice: DeviceType;
                 </div>
             )}
         </header>
+    );
+};
+
+export const Navbar3 = ({ activeDevice, sectionId }: { activeDevice: DeviceType; sectionId: string }) => {
+    const isDark = sectionId.includes("page-1");
+    const isMobile = activeDevice === "mobile";
+
+    return (
+        <nav
+            className="w-full flex items-center justify-between px-8 py-4 bg-transparent absolute top-0 left-0 right-0 z-50"
+            style={{ paddingTop: isMobile ? "16px" : "24px" }}
+        >
+            
+            <div className="flex items-center gap-3">
+                <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center text-white font-bold text-lg">
+                    O
+                </div>
+                <span
+                    className="font-bold text-xl hover:outline hover:outline-2 hover:outline-blue-500"
+                    style={{ color: isDark ? "#fff" : "#1a1a2e" }}
+                >
+                    <EditableText sectionId={sectionId} field="logo" defaultValue="OpenWire" />
+                </span>
+            </div>
+
+            
+            {!isMobile && (
+                <div className="flex items-center gap-1">
+                    {["Features", "Pricing", "About", "Blog"].map((item, i) => (
+                        <span
+                            key={item}
+                            className="px-4 py-2 rounded-lg text-sm font-medium cursor-pointer transition-all hover:bg-white/10 hover:outline hover:outline-2 hover:outline-blue-500"
+                            style={{ color: isDark ? "rgba(255,255,255,0.8)" : "#4b5563" }}
+                        >
+                            <EditableText sectionId={sectionId} field={`link-${i}`} defaultValue={item} />
+                        </span>
+                    ))}
+                </div>
+            )}
+
+            
+            <div className="flex items-center gap-3">
+                {!isMobile && (
+                    <button
+                        className="px-4 py-2 text-sm font-medium transition-colors rounded-lg hover:outline hover:outline-2 hover:outline-blue-500"
+                        style={{ color: isDark ? "rgba(255,255,255,0.8)" : "#4b5563" }}
+                    >
+                        <EditableText sectionId={sectionId} field="signIn" defaultValue="Sign In" />
+                    </button>
+                )}
+                <button className="px-5 py-2.5 rounded-xl text-sm font-semibold bg-gradient-to-r from-blue-600 to-purple-600 text-white hover:from-blue-700 hover:to-purple-700 transition-all shadow-lg shadow-purple-500/25 hover:outline hover:outline-2 hover:outline-blue-500">
+                    <EditableText sectionId={sectionId} field="cta" defaultValue="Get Started" />
+                </button>
+            </div>
+        </nav>
+    );
+};
+
+export const Navbar4 = ({ activeDevice, sectionId }: { activeDevice: DeviceType; sectionId: string }) => {
+    const isDark = sectionId.includes("page-1");
+    const isMobile = activeDevice === "mobile";
+
+    return (
+        <nav
+            className="w-full px-8 py-5 border-b"
+            style={{
+                backgroundColor: isDark ? "#0a0a0a" : "#fff",
+                borderColor: isDark ? "rgba(255,255,255,0.1)" : "rgba(0,0,0,0.05)"
+            }}
+        >
+            <div className="max-w-7xl mx-auto flex items-center justify-between">
+                
+                {!isMobile && (
+                    <div className="flex-1 flex items-center gap-8">
+                        {["Products", "Solutions"].map((item, i) => (
+                            <span
+                                key={item}
+                                className="text-sm font-medium cursor-pointer transition-colors hover:outline hover:outline-2 hover:outline-blue-500"
+                                style={{ color: isDark ? "rgba(255,255,255,0.7)" : "#6b7280" }}
+                            >
+                                <EditableText sectionId={sectionId} field={`left-link-${i}`} defaultValue={item} />
+                            </span>
+                        ))}
+                    </div>
+                )}
+
+                
+                <div className="flex items-center justify-center">
+                    <span
+                        className="font-black text-2xl tracking-tighter hover:outline hover:outline-2 hover:outline-blue-500"
+                        style={{ color: isDark ? "#fff" : "#0a0a0a" }}
+                    >
+                        <EditableText sectionId={sectionId} field="logo" defaultValue="WIRE" />
+                    </span>
+                </div>
+
+                
+                {!isMobile && (
+                    <div className="flex-1 flex items-center justify-end gap-8">
+                        {["Resources", "Company"].map((item, i) => (
+                            <span
+                                key={item}
+                                className="text-sm font-medium cursor-pointer transition-colors hover:outline hover:outline-2 hover:outline-blue-500"
+                                style={{ color: isDark ? "rgba(255,255,255,0.7)" : "#6b7280" }}
+                            >
+                                <EditableText sectionId={sectionId} field={`right-link-${i}`} defaultValue={item} />
+                            </span>
+                        ))}
+                        <button
+                            className="px-5 py-2 rounded-full text-sm font-semibold transition-colors hover:outline hover:outline-2 hover:outline-blue-500"
+                            style={{
+                                backgroundColor: isDark ? "#fff" : "#0a0a0a",
+                                color: isDark ? "#0a0a0a" : "#fff"
+                            }}
+                        >
+                            <EditableText sectionId={sectionId} field="cta" defaultValue="Try Free" />
+                        </button>
+                    </div>
+                )}
+
+
+                {isMobile && (
+                    <div className="flex flex-col gap-1.5 cursor-pointer">
+                        <span className={`w-6 h-0.5 rounded-full ${isDark ? "bg-white" : "bg-gray-800"}`}></span>
+                        <span className={`w-6 h-0.5 rounded-full ${isDark ? "bg-white" : "bg-gray-800"}`}></span>
+                        <span className={`w-6 h-0.5 rounded-full ${isDark ? "bg-white" : "bg-gray-800"}`}></span>
+                    </div>
+                )}
+            </div>
+        </nav>
     );
 };

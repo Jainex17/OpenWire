@@ -115,3 +115,107 @@ export const Features3 = ({ activeDevice, sectionId }: SectionProps) => {
         </div>
     );
 };
+
+export const Features4 = ({ activeDevice, sectionId }: SectionProps) => {
+    return (
+        <div className="w-full px-8 py-24 bg-[#0a0a0a]">
+            <div className="max-w-7xl mx-auto">
+                <div className="text-center mb-16">
+                    <span className="inline-block px-4 py-1.5 rounded-full bg-blue-500/20 text-blue-400 text-sm font-medium mb-6 border border-blue-500/30 hover:outline hover:outline-2 hover:outline-blue-500">
+                        <EditableText sectionId={sectionId} field="badge" defaultValue="FEATURES" />
+                    </span>
+                    <h2 className="text-4xl md:text-5xl font-bold text-white mb-6 hover:outline hover:outline-2 hover:outline-blue-500">
+                        <EditableText sectionId={sectionId} field="title" defaultValue="Everything you need" />
+                    </h2>
+                    <p className="text-gray-400 text-lg max-w-2xl mx-auto hover:outline hover:outline-2 hover:outline-blue-500">
+                        <EditableText sectionId={sectionId} field="description" defaultValue="Powerful tools designed to help you build faster and smarter." />
+                    </p>
+                </div>
+
+                <div className={`grid gap-4 ${activeDevice === 'mobile' ? 'grid-cols-1' : 'grid-cols-4 grid-rows-2'}`}>
+                    <div className={`${activeDevice === 'mobile' ? '' : 'col-span-2 row-span-2'} bg-blue-600 rounded-3xl p-8 relative overflow-hidden group`}>
+                        <div className="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNjAiIGhlaWdodD0iNjAiIHZpZXdCb3g9IjAgMCA2MCA2MCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48ZyBmaWxsPSJub25lIiBmaWxsLXJ1bGU9ImV2ZW5vZGQiPjxnIGZpbGw9IiNmZmYiIGZpbGwtb3BhY2l0eT0iMC4wNSI+PHBhdGggZD0iTTM2IDM0aDR2MWgtNHYtMXptMC0yaDF2NGgtMXYtNHptMCAwIi8+PC9nPjwvZz48L3N2Zz4=')] opacity-50" />
+                        <div className="relative z-10 h-full flex flex-col">
+                            <div className="w-14 h-14 bg-white/20 rounded-2xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform">
+                                <svg className="w-7 h-7 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M13 10V3L4 14h7v7l9-11h-7z" />
+                                </svg>
+                            </div>
+                            <h3 className="text-2xl font-bold text-white mb-3 hover:outline hover:outline-2 hover:outline-blue-500">
+                                <EditableText sectionId={sectionId} field="main-feature-title" defaultValue="Lightning Fast" />
+                            </h3>
+                            <p className="text-white/80 text-lg flex-1 hover:outline hover:outline-2 hover:outline-blue-500">
+                                <EditableText sectionId={sectionId} field="main-feature-desc" defaultValue="Built on cutting-edge technology to ensure maximum performance. Your websites load in milliseconds, not seconds." />
+                            </p>
+                        </div>
+                    </div>
+
+                    
+                    {[
+                        { icon: "🔒", title: "Secure", desc: "Enterprise-grade security" },
+                        { icon: "🌍", title: "Global CDN", desc: "200+ edge locations" },
+                        { icon: "📊", title: "Analytics", desc: "Real-time insights" },
+                        { icon: "🔄", title: "Auto Backup", desc: "Never lose your work" }
+                    ].map((feat, i) => (
+                        <div key={i} className="bg-white/5 border border-white/10 rounded-2xl p-6 hover:bg-white/10 transition-all group">
+                            <div className="text-3xl mb-4 group-hover:scale-110 transition-transform">{feat.icon}</div>
+                            <h3 className="text-lg font-bold text-white mb-2 hover:outline hover:outline-2 hover:outline-blue-500">
+                                <EditableText sectionId={sectionId} field={`feat-${i}-title`} defaultValue={feat.title} />
+                            </h3>
+                            <p className="text-gray-400 text-sm hover:outline hover:outline-2 hover:outline-blue-500">
+                                <EditableText sectionId={sectionId} field={`feat-${i}-desc`} defaultValue={feat.desc} />
+                            </p>
+                        </div>
+                    ))}
+                </div>
+            </div>
+        </div>
+    );
+};
+
+export const Features5 = ({ activeDevice, sectionId }: SectionProps) => {
+    const features = [
+        { icon: "✨", title: "AI-Powered", desc: "Smart suggestions that learn from your style", color: "bg-amber-500" },
+        { icon: "🎨", title: "Beautiful Design", desc: "Pixel-perfect components out of the box", color: "bg-pink-500" },
+        { icon: "⚡", title: "Blazing Fast", desc: "Optimized for performance at every level", color: "bg-blue-500" },
+        { icon: "🔐", title: "Secure by Default", desc: "Built with security as a first principle", color: "bg-green-500" },
+        { icon: "🌐", title: "Global Scale", desc: "Deploy worldwide in one click", color: "bg-purple-500" },
+        { icon: "💬", title: "24/7 Support", desc: "Real humans ready to help anytime", color: "bg-red-500" },
+    ];
+
+    return (
+        <div className="w-full px-8 py-24 bg-white">
+            <div className="max-w-7xl mx-auto">
+                <div className={`flex ${activeDevice === 'mobile' ? 'flex-col gap-12' : 'items-start gap-20'}`}>
+                    <div className="flex-shrink-0 max-w-md sticky top-24">
+                        <span className="text-blue-600 font-semibold text-sm uppercase tracking-wider hover:outline hover:outline-2 hover:outline-blue-500">
+                            <EditableText sectionId={sectionId} field="badge" defaultValue="Why OpenWire" />
+                        </span>
+                        <h2 className="text-4xl font-bold text-gray-900 mt-4 mb-6 hover:outline hover:outline-2 hover:outline-blue-500">
+                            <EditableText sectionId={sectionId} field="title" defaultValue="Features that set us apart" />
+                        </h2>
+                        <p className="text-lg text-gray-600 hover:outline hover:outline-2 hover:outline-blue-500">
+                            <EditableText sectionId={sectionId} field="description" defaultValue="We've thought about every detail so you can focus on what matters most — building great products." />
+                        </p>
+                    </div>
+
+                    <div className={`flex-1 grid gap-6 ${activeDevice === 'mobile' ? 'grid-cols-1' : 'grid-cols-2'}`}>
+                        {features.map((feat, i) => (
+                            <div key={i} className="group p-6 rounded-2xl border border-gray-100 hover:border-gray-200 hover:shadow-xl transition-all duration-300">
+                                <div className={`w-12 h-12 rounded-xl ${feat.color} flex items-center justify-center text-white text-xl mb-4 group-hover:scale-110 transition-transform`}>
+                                    {feat.icon}
+                                </div>
+                                <h3 className="text-lg font-bold text-gray-900 mb-2 hover:outline hover:outline-2 hover:outline-blue-500">
+                                    <EditableText sectionId={sectionId} field={`feature-${i}-title`} defaultValue={feat.title} />
+                                </h3>
+                                <p className="text-gray-600 hover:outline hover:outline-2 hover:outline-blue-500">
+                                    <EditableText sectionId={sectionId} field={`feature-${i}-desc`} defaultValue={feat.desc} />
+                                </p>
+                            </div>
+                        ))}
+                    </div>
+                </div>
+            </div>
+        </div>
+    );
+};

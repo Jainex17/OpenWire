@@ -82,7 +82,7 @@ export const Footer2 = ({ activeDevice, sectionId }: FooterProps) => {
                     ))}
                 </ul>
                 <div className="flex justify-center gap-4 mb-8">
-                    {/* Social Icons Placeholder */}
+                    
                     <div className="w-10 h-10 rounded-full bg-gray-50 flex items-center justify-center hover:bg-gray-100 text-gray-500">t</div>
                     <div className="w-10 h-10 rounded-full bg-gray-50 flex items-center justify-center hover:bg-gray-100 text-gray-500">ig</div>
                     <div className="w-10 h-10 rounded-full bg-gray-50 flex items-center justify-center hover:bg-gray-100 text-gray-500">li</div>
