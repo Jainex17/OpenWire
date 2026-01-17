@@ -7,6 +7,8 @@ import TemplateSelectionModal from "./TemplateSelectionModal";
 import Sidebar from "./Sidebar";
 import PageRenderer from "./PageRenderer";
 import SectionRenderer from "./SectionRenderer";
+import AddSectionSidebar from "./AddSectionSidebar";
+import type { SectionType } from "../lib/sectionLayouts";
 
 const DEVICE_DIMENSIONS = {
   desktop: { width: 1440, height: 900, label: "Desktop" },
@@ -93,9 +95,22 @@ export default function Canvas({
   onPreviewPage,
   onDeleteSection,
 }: CanvasProps) {
-  const { pages, sections } = useEditorStore();
+  const { pages, sections, addSectionSidebar, setAddSectionSidebar, addSection: addSectionToStore } = useEditorStore();
   const currentDevice = DEVICE_DIMENSIONS[activeDevice];
   const selectedSectionData = selectedSectionId ? sections[selectedSectionId] : null;
+
+  const handleAddSection = (sectionType: SectionType, layoutId: string) => {
+    const pageId = addSectionSidebar.pageId;
+    if (!pageId) return;
+    const sectionId = `${sectionType}-${pageId}-${Date.now()}`;
+    addSectionToStore(pageId, {
+      id: sectionId,
+      type: sectionType,
+      layoutId,
+      content: {},
+    }, addSectionSidebar.position);
+    setAddSectionSidebar({ isOpen: false });
+  };
 
   return (
     <div
@@ -191,6 +206,13 @@ export default function Canvas({
         onClose={onCloseTemplateModal}
         pageId={templateModalPageId}
       />
+
+      {addSectionSidebar.isOpen && (
+        <AddSectionSidebar
+          onClose={() => setAddSectionSidebar({ isOpen: false })}
+          onLayoutSelect={handleAddSection}
+        />
+      )}
     </div>
   );
 }

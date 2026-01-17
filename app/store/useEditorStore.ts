@@ -1,6 +1,7 @@
 import { create } from 'zustand';
 import { persist, createJSONStorage } from 'zustand/middleware';
 import { SectionType } from '@/app/lib/sectionLayouts';
+import { useState } from 'react';
 
 export type DeviceType = "desktop" | "tablet" | "mobile";
 export type TemplateType = "saas" | "business" | "portfolio" | "ecommerce" | null;
@@ -35,7 +36,15 @@ export interface ProjectState {
     activeTemplate: TemplateType;
 }
 
+export interface AddSectionSidebarState {
+    isOpen: boolean;
+    position?: number;
+    pageId?: string;
+}
+
 export interface EditorState extends CanvasState, ProjectState {
+    addSectionSidebar: AddSectionSidebarState;
+    setAddSectionSidebar: (state: AddSectionSidebarState) => void;
     setZoom: (zoom: number) => void;
     setPanOffset: (offset: { x: number; y: number }) => void;
     setActiveDevice: (device: DeviceType) => void;
@@ -137,6 +146,9 @@ export const useEditorStore = create<EditorState>()(
         (set) => ({
             ...DEFAULT_CANVAS_STATE,
             ...generateEmptyState(),
+            addSectionSidebar: { isOpen: false },
+
+            setAddSectionSidebar: (state) => set({ addSectionSidebar: state }),
 
             setZoom: (zoom) => set({ zoom }),
             setPanOffset: (panOffset) => set({ panOffset }),
@@ -423,6 +435,7 @@ export const useEditorStore = create<EditorState>()(
                 zoom: 20,
                 panOffset: { x: 0, y: 0 }
             })),
+
         }),
         {
             name: 'openwire-editor-storage',

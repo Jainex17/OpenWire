@@ -4,13 +4,13 @@ import { useState } from "react";
 import { SECTION_LAYOUTS } from "../lib/sectionLayouts";
 import { type SectionData } from "../store/useEditorStore";
 import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
+    AlertDialog,
+    AlertDialogAction,
+    AlertDialogCancel,
+    AlertDialogContent,
+    AlertDialogFooter,
+    AlertDialogHeader,
+    AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
 
 interface SectionCustomizePopupProps {
@@ -111,17 +111,7 @@ export default function SectionCustomizePopup({
                                 />
                             </div>
 
-                            <div className="space-y-1">
-                                <label className="text-xs font-medium text-[#8c8377] uppercase tracking-wide">Description</label>
-                                <textarea
-                                    value={description}
-                                    onChange={(e) => handleDescriptionChange(e.target.value)}
-                                    rows={3}
-                                    className="w-full px-3 py-2 bg-white border border-[#e0d9ce] rounded text-sm text-[#5c5347] focus:outline-none focus:ring-2 focus:ring-blue-100 focus:border-blue-400 transition-all resize-none"
-                                />
-                            </div>
-
-                            <div className="grid grid-cols-2 gap-3 mt-2">
+                            <div className="grid grid-cols-2 gap-3">
                                 <button
                                     onClick={() => setView("layout")}
                                     className="flex items-center justify-center gap-2 px-4 py-2 bg-white border border-[#e0d9ce] rounded hover:border-blue-400 hover:text-blue-600 transition-all group text-black"
@@ -146,7 +136,7 @@ export default function SectionCustomizePopup({
 
                             <button
                                 onClick={() => setShowDeleteConfirm(true)}
-                                className="flex items-center justify-center gap-2 px-4 py-2 mt-3 bg-red-50 border border-red-200 rounded hover:bg-red-100 hover:border-red-400 transition-all group text-red-600"
+                                className="flex items-center justify-center gap-2 px-4 py-2 bg-red-50 border border-red-200 rounded hover:bg-red-100 hover:border-red-400 transition-all group text-red-600"
                             >
                                 <svg className="w-4 h-4 text-red-500 group-hover:text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />

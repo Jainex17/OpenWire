@@ -50,7 +50,7 @@ export default function Home() {
     pages, sections,
   } = useEditorStore();
 
-  const handleTemplateSelect = (templateType: TemplateType, pageId?: string | null) => {
+  const handleTemplateSelect = useCallback((templateType: TemplateType, pageId?: string | null) => {
     if (pageId) {
       loadTemplateToPage(pageId, templateType);
     } else {
@@ -58,7 +58,7 @@ export default function Home() {
     }
     setShowTemplateModal(false);
     setTemplateModalPageId(null);
-  };
+  }, [loadTemplate, loadTemplateToPage]);
 
   const sensors = useSensors(
     useSensor(PointerSensor, {
@@ -77,46 +77,63 @@ export default function Home() {
     setPanOffset({ x: 0, y: 0 });
   }, [setZoom, setPanOffset]);
 
-  const handleSectionSelect = (id: string) => {
+  const handleSectionSelect = useCallback((id: string) => {
     setSelectedSection(id === "" ? null : id);
-  };
+  }, [setSelectedSection]);
 
-  const handleLayoutSelect = (layoutId: string) => {
+  const handleLayoutSelect = useCallback((layoutId: string) => {
     if (selectedSectionId) {
       updateSectionLayout(selectedSectionId, layoutId);
     }
-  };
+  }, [selectedSectionId, updateSectionLayout]);
 
-  const handleUpdateSection = (data: Partial<Record<string, unknown>>) => {
+  const handleUpdateSection = useCallback((data: Partial<Record<string, unknown>>) => {
     if (selectedSectionId) {
       updateSectionData(selectedSectionId, data);
     }
-  };
+  }, [selectedSectionId, updateSectionData]);
 
-  const handleCanvasClick = () => {
+  const handleCanvasClick = useCallback(() => {
     setSelectedSection(null);
     setOpenPageMenuId(null);
-  };
+  }, [setSelectedSection]);
 
-  const handleShowTemplateModal = (pageId: string) => {
+  const handleShowTemplateModal = useCallback((pageId: string) => {
     setShowTemplateModal(true);
     setTemplateModalPageId(pageId);
-  };
+  }, []);
 
-  const handlePreviewPage = (pageId: string) => {
+  const handlePreviewPage = useCallback((pageId: string) => {
     setPreviewPageId(pageId);
-  };
+  }, []);
 
-  const handleClosePreview = () => {
+  const handleClosePreview = useCallback(() => {
     setPreviewPageId(null);
-  };
+  }, []);
 
-  const handleDeleteSection = (sectionId: string) => {
+  const handleDeleteSection = useCallback((sectionId: string) => {
     const page = pages.find(p => p.sections.includes(sectionId));
     if (page) {
       removeSection(page.id, sectionId);
     }
-  };
+  }, [pages, removeSection]);
+
+  const handleTogglePageMenu = useCallback((pageId: string) => {
+    setOpenPageMenuId(prev => prev === pageId ? null : pageId);
+  }, []);
+
+  const handleClosePageMenu = useCallback(() => {
+    setOpenPageMenuId(null);
+  }, []);
+
+  const handleAddPage = useCallback(() => {
+    addPage();
+  }, [addPage]);
+
+  const handleCloseTemplateModal = useCallback(() => {
+    setShowTemplateModal(false);
+    setTemplateModalPageId(null);
+  }, []);
 
   const handleDragStartWithHeight = (event: DragStartEvent) => {
     const { active } = event;
@@ -148,10 +165,16 @@ export default function Home() {
     const handleWheel = (e: WheelEvent) => {
       e.preventDefault();
 
+      const state = useEditorStore.getState();
+      const currentZoom = state.zoom;
+      const currentPanOffset = state.panOffset;
+      const setZoom = state.setZoom;
+      const setPanOffset = state.setPanOffset;
+
       if (e.ctrlKey || e.metaKey) {
         const delta = -e.deltaY;
         const zoomFactor = 1 + delta * 0.001;
-        const newZoom = Math.min(Math.max(zoom * zoomFactor, MIN_ZOOM), MAX_ZOOM);
+        const newZoom = Math.min(Math.max(currentZoom * zoomFactor, MIN_ZOOM), MAX_ZOOM);
 
         const rect = canvas.getBoundingClientRect();
         const mouseX = e.clientX - rect.left;
@@ -160,8 +183,8 @@ export default function Home() {
         const canvasCenterX = rect.width / 2;
         const canvasTopOffset = 100;
 
-        const contentX = (mouseX - canvasCenterX - panOffset.x) / (zoom / 100);
-        const contentY = (mouseY - canvasTopOffset - panOffset.y) / (zoom / 100);
+        const contentX = (mouseX - canvasCenterX - currentPanOffset.x) / (currentZoom / 100);
+        const contentY = (mouseY - canvasTopOffset - currentPanOffset.y) / (currentZoom / 100);
 
         const newPanX = mouseX - canvasCenterX - contentX * (newZoom / 100);
         const newPanY = mouseY - canvasTopOffset - contentY * (newZoom / 100);
@@ -170,8 +193,8 @@ export default function Home() {
         setPanOffset({ x: newPanX, y: newPanY });
       } else {
         setPanOffset({
-          x: panOffset.x - (e.deltaX * 0.6),
-          y: panOffset.y - (e.deltaY * 0.6),
+          x: currentPanOffset.x - (e.deltaX * 0.6),
+          y: currentPanOffset.y - (e.deltaY * 0.6),
         });
       }
     };
@@ -189,7 +212,7 @@ export default function Home() {
       canvas.removeEventListener("wheel", handleWheel);
       document.removeEventListener("keydown", handleEsc);
     };
-  }, [zoom, panOffset, setPanOffset, setZoom]);
+  }, []);
 
   return (
     <DndContext
@@ -221,17 +244,14 @@ export default function Home() {
         onTemplateSelect={handleTemplateSelect}
         onLayoutSelect={handleLayoutSelect}
         onUpdateSection={handleUpdateSection}
-        onTogglePageMenu={(pageId: string) => setOpenPageMenuId(openPageMenuId === pageId ? null : pageId)}
-        onClosePageMenu={() => setOpenPageMenuId(null)}
+        onTogglePageMenu={handleTogglePageMenu}
+        onClosePageMenu={handleClosePageMenu}
         onRenamePage={renamePage}
         onDuplicatePage={duplicatePage}
         onDeletePage={deletePage}
-        onAddPage={() => addPage()}
+        onAddPage={handleAddPage}
         onShowTemplateModal={handleShowTemplateModal}
-        onCloseTemplateModal={() => {
-          setShowTemplateModal(false);
-          setTemplateModalPageId(null);
-        }}
+        onCloseTemplateModal={handleCloseTemplateModal}
         onPreviewPage={handlePreviewPage}
         onDeleteSection={handleDeleteSection}
       />

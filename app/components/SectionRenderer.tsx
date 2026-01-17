@@ -1,3 +1,4 @@
+import React from "react";
 import { Navbar1, Navbar2, Navbar3, Navbar4 } from "@/components/layout/Navbar";
 import { Hero1, Hero2, Hero3, Hero4, Hero5 } from "@/components/layout/Hero";
 import { Footer1, Footer2, Footer3 } from "@/components/layout/Footer";
@@ -18,9 +19,9 @@ interface SectionRendererProps {
   sectionId: string;
 }
 
-export default function SectionRenderer({ sectionId }: SectionRendererProps) {
-  const { sections, activeDevice } = useEditorStore();
-  const section = sections[sectionId];
+export default React.memo(function SectionRenderer({ sectionId }: SectionRendererProps) {
+  const section = useEditorStore(state => state.sections[sectionId]);
+  const activeDevice = useEditorStore(state => state.activeDevice);
 
   if (!section) return null;
 
@@ -114,4 +115,4 @@ export default function SectionRenderer({ sectionId }: SectionRendererProps) {
   }
 
   return null;
-}
+});
