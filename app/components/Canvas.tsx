@@ -1,4 +1,8 @@
-import { DragOverlay, defaultDropAnimationSideEffects, type DropAnimation } from "@dnd-kit/core";
+import {
+  DragOverlay,
+  defaultDropAnimationSideEffects,
+  type DropAnimation,
+} from "@dnd-kit/core";
 import { useEditorStore, TemplateType } from "../store/useEditorStore";
 import CanvasToolbar from "./CanvasToolbar";
 import CanvasTopToolbar from "./CanvasTopToolbar";
@@ -47,7 +51,10 @@ interface CanvasProps {
   onZoomChange: (zoom: number) => void;
   onDeviceChange: (device: keyof typeof DEVICE_DIMENSIONS) => void;
   onReset: () => void;
-  onTemplateSelect: (templateType: TemplateType, pageId?: string | null) => void;
+  onTemplateSelect: (
+    templateType: TemplateType,
+    pageId?: string | null,
+  ) => void;
   onLayoutSelect: (layoutId: string) => void;
   onUpdateSection: (data: Partial<Record<string, unknown>>) => void;
   onTogglePageMenu: (pageId: string) => void;
@@ -95,20 +102,32 @@ export default function Canvas({
   onPreviewPage,
   onDeleteSection,
 }: CanvasProps) {
-  const { pages, sections, addSectionSidebar, setAddSectionSidebar, addSection: addSectionToStore } = useEditorStore();
+  const {
+    pages,
+    sections,
+    addSectionSidebar,
+    setAddSectionSidebar,
+    addSection: addSectionToStore,
+  } = useEditorStore();
   const currentDevice = DEVICE_DIMENSIONS[activeDevice];
-  const selectedSectionData = selectedSectionId ? sections[selectedSectionId] : null;
+  const selectedSectionData = selectedSectionId
+    ? sections[selectedSectionId]
+    : null;
 
   const handleAddSection = (sectionType: SectionType, layoutId: string) => {
     const pageId = addSectionSidebar.pageId;
     if (!pageId) return;
     const sectionId = `${sectionType}-${pageId}-${Date.now()}`;
-    addSectionToStore(pageId, {
-      id: sectionId,
-      type: sectionType,
-      layoutId,
-      content: {},
-    }, addSectionSidebar.position);
+    addSectionToStore(
+      pageId,
+      {
+        id: sectionId,
+        type: sectionType,
+        layoutId,
+        content: {},
+      },
+      addSectionSidebar.position,
+    );
     setAddSectionSidebar({ isOpen: false });
   };
 
@@ -132,7 +151,7 @@ export default function Canvas({
           className="flex flex-row"
           style={{
             gap: `${120}px`,
-            marginLeft: `-${(pages.length * (currentDevice.width + 120)) / 2}px`
+            marginLeft: `-${(pages.length * (currentDevice.width + 120)) / 2}px`,
           }}
         >
           {pages.map((page) => (
@@ -163,7 +182,7 @@ export default function Canvas({
       <Sidebar onAddPage={onAddPage} />
 
       <SectionCustomizePopup
-        key={selectedSectionId || 'popup'}
+        key={selectedSectionId || "popup"}
         isOpen={!!selectedSectionId}
         section={selectedSectionData || null}
         onLayoutSelect={onLayoutSelect}
@@ -188,10 +207,10 @@ export default function Canvas({
             style={{
               width: currentDevice.width,
               height: draggedSectionHeight || undefined,
-              overflow: 'hidden',
+              overflow: "hidden",
               transform: `scale(${zoom / 100})`,
-              transformOrigin: 'top left',
-              pointerEvents: 'none',
+              transformOrigin: "top left",
+              pointerEvents: "none",
             }}
             className="shadow-2xl ring-2 ring-blue-500 rounded-lg bg-white cursor-grabbing opacity-80"
           >

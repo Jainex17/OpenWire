@@ -1,6 +1,9 @@
 import React from "react";
 import { FileIcon, HomeIcon, PlusIcon } from "lucide-react";
-import { SortableContext, verticalListSortingStrategy } from "@dnd-kit/sortable";
+import {
+  SortableContext,
+  verticalListSortingStrategy,
+} from "@dnd-kit/sortable";
 import { useEditorStore } from "../store/useEditorStore";
 import PageOptionsMenu from "./PageOptionsMenu";
 import ClickableSection from "./ClickableSection";
@@ -56,22 +59,28 @@ export default React.memo(function PageRenderer({
   onShowTemplateModal,
   onPreviewPage,
 }: PageRendererProps) {
-  const sections = useEditorStore(state => state.sections);
-  const pages = useEditorStore(state => state.pages);
-  const addSectionSidebar = useEditorStore(state => state.addSectionSidebar);
-  const setAddSectionSidebar = useEditorStore(state => state.setAddSectionSidebar);
-  const addSectionToStore = useEditorStore(state => state.addSection);
+  const sections = useEditorStore((state) => state.sections);
+  const pages = useEditorStore((state) => state.pages);
+  const addSectionSidebar = useEditorStore((state) => state.addSectionSidebar);
+  const setAddSectionSidebar = useEditorStore(
+    (state) => state.setAddSectionSidebar,
+  );
+  const addSectionToStore = useEditorStore((state) => state.addSection);
 
   const isDraggingOnPage = activeDragId && activeDragPageId === page.id;
 
   const handleAddSection = (sectionType: SectionType, layoutId: string) => {
     const sectionId = `${sectionType}-${page.id}-${Date.now()}`;
-    addSectionToStore(page.id, {
-      id: sectionId,
-      type: sectionType,
-      layoutId,
-      content: {},
-    }, addSectionSidebar.position);
+    addSectionToStore(
+      page.id,
+      {
+        id: sectionId,
+        type: sectionType,
+        layoutId,
+        content: {},
+      },
+      addSectionSidebar.position,
+    );
     setAddSectionSidebar({ isOpen: false });
   };
 
@@ -84,7 +93,12 @@ export default React.memo(function PageRenderer({
       <div className="flex flex-col items-center">
         <div className="w-full h-[50px] flex items-center pl-4 pr-2 mb-4 rounded-[var(--radius)] justify-between bg-secondary">
           <p className="text-foreground font-medium text-md flex items-center gap-3">
-            {page.title === "Home" ? <HomeIcon width={20} /> : <FileIcon width={20} />} {page.title}
+            {page.title === "Home" ? (
+              <HomeIcon width={20} />
+            ) : (
+              <FileIcon width={20} />
+            )}{" "}
+            {page.title}
           </p>
           <PageOptionsMenu
             pageId={page.id}
@@ -107,11 +121,13 @@ export default React.memo(function PageRenderer({
             minHeight: "800px",
             height: "fit-content",
             paddingBottom: "0px",
-            overflow: "visible"
+            overflow: "visible",
           }}
         >
           {page.sections.length === 0 ? (
-            <EmptyPageState onShowTemplateModal={() => onShowTemplateModal(page.id)} />
+            <EmptyPageState
+              onShowTemplateModal={() => onShowTemplateModal(page.id)}
+            />
           ) : (
             <SortableContext
               items={page.sections}
@@ -122,7 +138,8 @@ export default React.memo(function PageRenderer({
                   const section = sections[sectionId];
                   if (!section) return null;
 
-                  const showPlaceholder = isDraggingOnPage &&
+                  const showPlaceholder =
+                    isDraggingOnPage &&
                     sectionId === overSectionId &&
                     sectionId !== activeDragId;
 
@@ -131,7 +148,9 @@ export default React.memo(function PageRenderer({
                       <ClickableSection
                         id={sectionId}
                         type={section.type}
-                        isSelected={!!selectedSectionId && selectedSectionId === sectionId}
+                        isSelected={
+                          !!selectedSectionId && selectedSectionId === sectionId
+                        }
                         showPlaceholder={!!showPlaceholder}
                         draggedSectionHeight={draggedSectionHeight}
                         onSelect={onSectionSelect}
