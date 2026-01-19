@@ -41,7 +41,7 @@ export default function PagePreviewModal({
             <XIcon width={18} className="text-gray-500" />
           </button>
         </div>
-        <div className="flex-1 bg-white overflow-auto shadow-2xl">
+        <div className="relative flex-1 bg-white overflow-auto shadow-2xl">
           <PreviewProvider isPreview={true}>
             <div className="w-full min-h-full preview-mode">
               {page.sections.map((sectionId) => (

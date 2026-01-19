@@ -113,7 +113,7 @@ export const Navbar2 = ({
           <div className="flex items-center">
             <div className="flex items-center gap-2 cursor-pointer">
               <span
-                className="font-bold text-lg transition-colors duration-200 hover:outline-2 hover:outline-blue-500"
+                className="font-bold text-lg pl-2"
                 style={{ color: isDark ? "#fff" : "#1a1a2e" }}
               >
                 <EditableText
