@@ -50,7 +50,7 @@ export const Navbar1 = ({
 
   return (
     <header id="navbar">
-      <div className="relative bg-white">
+      <div className="relative">
         <div className="max-w-7xl mx-auto px-4 sm:px-6">
           <div className="flex justify-between items-center border-b-2 border-gray-100 py-6 md:justify-start md:space-x-10">
             <div className="flex justify-start lg:w-0 lg:flex-1">
@@ -794,7 +794,7 @@ export const Navbar2 = ({
       style={{ padding: isMobile ? "0 8px" : "0 16px" }}
     >
       <nav
-        className="p-2 mx-auto w-full rounded-full border backdrop-blur-md h-fit shadow-lg transition-all duration-300"
+        className="p-2 mx-auto w-full rounded-full backdrop-blur-md h-fit shadow-lg transition-all duration-300"
         style={{
           backgroundColor: isDark
             ? "rgba(26, 26, 46, 0.9)"
