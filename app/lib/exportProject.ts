@@ -128,3 +128,14 @@ export const exportProject = async (pages: PageData[], sections: Record<string, 
   const content = await zip.generateAsync({ type: 'blob' });
   saveAs(content, 'openwire-export.zip');
 };
+
+
+export const exportSinglePage = async (page: PageData, sections: Record<string, SectionData>) => {
+  const zip = new JSZip();
+
+  const html = generatePageHtml(page, sections);
+  zip.file('index.html', html);
+
+  const content = await zip.generateAsync({ type: 'blob' });
+  saveAs(content, 'openwire-export.zip');
+};

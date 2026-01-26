@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { MoreHorizontalIcon, Trash2Icon, CopyIcon, PencilIcon, EyeIcon } from "lucide-react";
+import { MoreHorizontalIcon, Trash2Icon, CopyIcon, PencilIcon, EyeIcon, DownloadIcon } from "lucide-react";
 import {
     Dialog,
     DialogContent,
@@ -35,6 +35,7 @@ interface PageOptionsMenuProps {
     onDuplicate: () => void;
     onDelete: () => void;
     onPreview: () => void;
+    onExport: () => void;
 }
 
 export default function PageOptionsMenu({
@@ -48,6 +49,7 @@ export default function PageOptionsMenu({
     onDuplicate,
     onDelete,
     onPreview,
+    onExport,
 }: PageOptionsMenuProps) {
     const [showRenameDialog, setShowRenameDialog] = useState(false);
     const [showDeleteDialog, setShowDeleteDialog] = useState(false);
@@ -120,6 +122,12 @@ export default function PageOptionsMenu({
                             <EyeIcon width={22} className="cursor-pointer" />
                             <span>
                                 Preview Page
+                            </span>
+                        </DropdownMenuItem>
+                        <DropdownMenuItem onClick={onExport}>
+                            <DownloadIcon width={22} className="cursor-pointer" />
+                            <span>
+                                Export Page
                             </span>
                         </DropdownMenuItem>
                         <DropdownMenuItem onClick={handleDeleteClick}>

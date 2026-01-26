@@ -10,10 +10,11 @@ import {
   DragStartEvent,
   DragEndEvent,
 } from "@dnd-kit/core";
-import { useEditorStore, TemplateType } from "./store/useEditorStore";
+import { useEditorStore, TemplateType, SectionData } from "./store/useEditorStore";
 import { useDragAndDrop } from "./hooks/useDragAndDrop";
 import Canvas from "./components/Canvas";
 import PagePreviewModal from "./components/PagePreviewModal";
+import { exportProject, exportSinglePage } from "./lib/exportProject";
 
 const MIN_ZOOM = 5;
 const MAX_ZOOM = 200;
@@ -165,6 +166,24 @@ export default function Home() {
     addPage();
   }, [addPage]);
 
+  const handleExportPage = useCallback(
+    (pageId: string) => {
+      const page = pages.find((p) => p.id === pageId);
+      if (!page) return;
+
+      const pageSections = page.sections.reduce((acc, sectionId) => {
+        if (sections[sectionId]) {
+          acc[sectionId] = sections[sectionId];
+        }
+
+        return acc;
+      }, {} as Record<string, SectionData>);
+
+      exportSinglePage(page, pageSections);
+    },
+    [pages, sections],
+  );
+
   const handleCloseTemplateModal = useCallback(() => {
     setShowTemplateModal(false);
     setTemplateModalPageId(null);
@@ -292,6 +311,7 @@ export default function Home() {
         onDuplicatePage={duplicatePage}
         onDeletePage={deletePage}
         onAddPage={handleAddPage}
+        onExportPage={handleExportPage}
         onShowTemplateModal={handleShowTemplateModal}
         onCloseTemplateModal={handleCloseTemplateModal}
         onPreviewPage={handlePreviewPage}

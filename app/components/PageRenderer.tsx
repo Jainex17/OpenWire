@@ -37,6 +37,7 @@ interface PageRendererProps {
   onDuplicatePage: (pageId: string) => void;
   onDeletePage: (pageId: string) => void;
   onShowTemplateModal: (pageId: string) => void;
+  onExportPage: (pageId: string) => void;
   onPreviewPage: (pageId: string) => void;
 }
 
@@ -57,6 +58,7 @@ export default React.memo(function PageRenderer({
   onDuplicatePage,
   onDeletePage,
   onShowTemplateModal,
+  onExportPage,
   onPreviewPage,
 }: PageRendererProps) {
   const sections = useEditorStore((state) => state.sections);
@@ -65,24 +67,8 @@ export default React.memo(function PageRenderer({
   const setAddSectionSidebar = useEditorStore(
     (state) => state.setAddSectionSidebar,
   );
-  const addSectionToStore = useEditorStore((state) => state.addSection);
 
   const isDraggingOnPage = activeDragId && activeDragPageId === page.id;
-
-  const handleAddSection = (sectionType: SectionType, layoutId: string) => {
-    const sectionId = `${sectionType}-${page.id}-${Date.now()}`;
-    addSectionToStore(
-      page.id,
-      {
-        id: sectionId,
-        type: sectionType,
-        layoutId,
-        content: {},
-      },
-      addSectionSidebar.position,
-    );
-    setAddSectionSidebar({ isOpen: false });
-  };
 
   const openAddSectionSidebar = (position?: number) => {
     setAddSectionSidebar({ isOpen: true, position, pageId: page.id });
@@ -111,6 +97,7 @@ export default React.memo(function PageRenderer({
             onDuplicate={() => onDuplicatePage(page.id)}
             onDelete={() => onDeletePage(page.id)}
             onPreview={() => onPreviewPage(page.id)}
+            onExport={() => onExportPage(page.id)}
           />
         </div>
 

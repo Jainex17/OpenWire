@@ -66,6 +66,7 @@ interface CanvasProps {
   onShowTemplateModal: (pageId: string) => void;
   onCloseTemplateModal: () => void;
   onPreviewPage: (pageId: string) => void;
+  onExportPage: (pageId: string) => void;
   onDeleteSection: (sectionId: string) => void;
 }
 
@@ -101,6 +102,7 @@ export default function Canvas({
   onCloseTemplateModal,
   onPreviewPage,
   onDeleteSection,
+  onExportPage
 }: CanvasProps) {
   const {
     pages,
@@ -173,6 +175,7 @@ export default function Canvas({
               onDuplicatePage={onDuplicatePage}
               onDeletePage={onDeletePage}
               onShowTemplateModal={onShowTemplateModal}
+              onExportPage={onExportPage}
               onPreviewPage={onPreviewPage}
             />
           ))}
