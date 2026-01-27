@@ -4,7 +4,6 @@ import ReactDOMServer from 'react-dom/server';
 import React from 'react';
 import { PageData, SectionData } from '../store/useEditorStore';
 import PreviewSectionRenderer from '../components/PreviewSectionRenderer';
-import { PreviewProvider } from '../context/PreviewContext';
 
 const TAILWIND_CDN = '<script src="https://cdn.tailwindcss.com"></script>';
 
@@ -61,7 +60,33 @@ const THEME_CONFIG = `
   body {
     background-color: #f0f0f0;
     color: #333333;
+    user-select: none;
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
   }
+  
+  /* Remove blue borders and outlines */
+  * {
+    outline: none !important;
+    box-shadow: none !important;
+    border: none !important;
+  }
+  
+  /* Remove cursor pointer effects */
+  * {
+    cursor: default !important;
+  }
+  
+  /* Disable all interactive elements */
+  input, textarea, select, button, [contenteditable], .cursor-text {
+    pointer-events: none !important;
+    user-select: none !important;
+    -webkit-user-select: none !important;
+    -moz-user-select: none !important;
+    -ms-user-select: none !important;
+  }
+  
   /* Custom Scrollbar */
   ::-webkit-scrollbar {
     width: 6px;
@@ -82,22 +107,14 @@ const THEME_CONFIG = `
 
 const generatePageHtml = (page: PageData, sections: Record<string, SectionData>) => {
   const content = ReactDOMServer.renderToStaticMarkup(
-    React.createElement(
-      PreviewProvider,
-      {
-        isPreview: true,
-        children: React.createElement(
-          'div',
-          { className: 'w-full min-h-screen' },
-          page.sections.map((sectionId) =>
-            React.createElement(PreviewSectionRenderer, {
-              key: sectionId,
-              sectionId,
-              sections,
-            })
-          )
-        )
-      }
+    React.createElement('div', { className: 'w-full min-h-screen' },
+      page.sections.map((sectionId) =>
+        React.createElement(PreviewSectionRenderer, {
+          key: sectionId,
+          sectionId,
+          sections,
+        })
+      )
     )
   );
 
