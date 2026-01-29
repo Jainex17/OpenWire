@@ -1,5 +1,6 @@
 "use client";
 
+import { useEffect, useRef } from "react";
 import { TemplateType } from "../store/useEditorStore";
 
 interface TemplateOption {
@@ -77,73 +78,84 @@ export default function TemplateSelectionModal({
   onClose,
   pageId,
 }: TemplateSelectionModalProps) {
+  const scrollRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const el = scrollRef.current;
+    if (!el) return;
+    const handleWheel = (e: WheelEvent) => {
+      e.stopPropagation();
+    };
+
+    el.addEventListener("wheel", handleWheel);
+    return () => {
+      el.removeEventListener("wheel", handleWheel);
+    };
+  }, []);
+
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center">
-      <div
-        className="absolute inset-0 bg-black/60 backdrop-blur-sm"
-        onClick={onClose}
-      />
-
-      <div className="relative bg-white rounded-2xl shadow-2xl w-full max-w-4xl mx-4 max-h-[90vh] overflow-hidden">
-        <div className="px-8 py-6 border-b border-gray-100">
-          <div className="flex items-center justify-between">
-            <div>
-              <h2 className="text-2xl font-bold text-gray-900">
-                Choose a Template
-              </h2>
-              <p className="text-gray-500 mt-1">
-                Select a starting point for your website
-              </p>
-            </div>
-            <button
-              onClick={onClose}
-              className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
-            >
-              <svg
-                className="w-5 h-5 text-gray-500"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M6 18L18 6M6 6l12 12"
-                />
-              </svg>
-            </button>
+    <div
+      className="fixed left-[4.5rem] top-4 z-50 animate-in fade-in slide-in-from-left-4 duration-200 select-text cursor-default"
+      onClick={(e) => e.stopPropagation()}
+      data-scroll-lock="modal"
+    >
+      <div className="bg-card rounded-lg shadow-xl border border-border overflow-hidden w-[320px] flex flex-col max-h-[520px]">
+        <div className="flex items-center justify-between px-4 py-3 border-b border-border bg-popover">
+          <div className="flex items-center gap-2">
+            <span className="font-semibold text-foreground">
+              Choose Template
+            </span>
           </div>
+          <button
+            onClick={onClose}
+            className="text-muted-foreground hover:text-foreground transition-colors"
+          >
+            <svg
+              className="w-5 h-5"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M6 18L18 6M6 6l12 12"
+              />
+            </svg>
+          </button>
         </div>
 
-        <div className="p-8 overflow-y-auto max-h-[calc(90vh-120px)]">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div ref={scrollRef} className="flex-1 min-h-0 p-4 overflow-y-auto">
+          <div className="flex flex-col gap-2">
             {templates.map((template) => (
               <button
                 key={template.id}
                 onClick={() => onSelect(template.id, pageId)}
-                className="group relative bg-gray-50 rounded-xl p-6 text-left hover:bg-gray-100 transition-all duration-200 border-2 border-transparent hover:border-blue-500 hover:shadow-lg"
+                className="flex flex-col gap-3 p-3 text-left rounded border border-border hover:border-ring hover:bg-secondary transition-all group"
               >
-                <h3 className="text-lg font-bold text-gray-900 mb-2">
-                  {template.name}
-                </h3>
-                <p className="text-sm text-gray-500 mb-4 leading-relaxed">
-                  {template.description}
-                </p>
+                <div>
+                  <div className="text-sm font-medium text-foreground">
+                    {template.name}
+                  </div>
+                  <div className="text-xs text-muted-foreground mt-0.5">
+                    {template.description}
+                  </div>
+                </div>
 
-                <div className="flex flex-wrap gap-2">
+                <div className="flex flex-wrap gap-1.5">
                   {template.preview.slice(0, 5).map((section, idx) => (
                     <span
                       key={idx}
-                      className="px-2 py-1 bg-white rounded-md text-xs text-gray-600 border border-gray-200"
+                      className="px-2 py-1 bg-card rounded-md text-xs text-muted-foreground border border-border"
                     >
                       {section}
                     </span>
                   ))}
                   {template.preview.length > 5 && (
-                    <span className="px-2 py-1 bg-white rounded-md text-xs text-gray-400 border border-gray-200">
+                    <span className="px-2 py-1 bg-card rounded-md text-xs text-muted-foreground border border-border">
                       +{template.preview.length - 5} more
                     </span>
                   )}

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { SECTION_LAYOUTS } from "../lib/sectionLayouts";
 import { type SectionData } from "../store/useEditorStore";
 import {
@@ -57,6 +57,20 @@ export default function SectionCustomizePopup({
 }: SectionCustomizePopupProps) {
   const [view, setView] = useState<ViewState>("main");
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+  const scrollRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const el = scrollRef.current;
+    if (!el) return;
+    const handleWheel = (e: WheelEvent) => {
+      e.stopPropagation();
+    };
+
+    el.addEventListener("wheel", handleWheel, { passive: false });
+    return () => {
+      el.removeEventListener("wheel", handleWheel);
+    };
+  }, []);
 
   const initialName =
     section?.name ||
@@ -92,6 +106,7 @@ export default function SectionCustomizePopup({
     <div
       className="fixed left-[4.5rem] top-4 z-50 animate-in fade-in slide-in-from-left-4 duration-200 select-text cursor-default"
       onClick={(e) => e.stopPropagation()}
+      data-scroll-lock="modal"
     >
       <div className="bg-card rounded-lg shadow-xl border border-border overflow-hidden w-[280px] flex flex-col">
         <div className="flex items-center justify-between px-4 py-3 border-b border-border bg-popover">
@@ -144,7 +159,7 @@ export default function SectionCustomizePopup({
           </button>
         </div>
 
-        <div className="p-4">
+        <div ref={scrollRef} className="p-4">
           {view === "main" ? (
             <div className="flex flex-col gap-4">
               <div className="space-y-1">

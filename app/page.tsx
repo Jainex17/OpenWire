@@ -219,6 +219,13 @@ export default function Home() {
     if (!canvas) return;
 
     const handleWheel = (e: WheelEvent) => {
+      const target = e.target;
+      if (
+        target instanceof Element &&
+        target.closest('[data-scroll-lock="modal"]')
+      ) {
+        return;
+      }
       e.preventDefault();
 
       const state = useEditorStore.getState();
