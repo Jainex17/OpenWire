@@ -324,7 +324,7 @@ export const Navbar1 = ({
                       setMoreOpen(!moreOpen);
                       setSolutionsOpen(false);
                     }}
-                    className={`group bg-white rounded-md inline-flex items-center text-base font-medium hover:text-gray-900 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 ${moreOpen ? "text-gray-900" : "text-gray-500"
+                    className={`group rounded-md inline-flex items-center text-base font-medium hover:text-gray-900 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 ${moreOpen ? "text-gray-900" : "text-gray-500"
                       }`}
                   >
                     <span>
@@ -537,7 +537,7 @@ export const Navbar1 = ({
                     <button
                       type="button"
                       onClick={() => setMobileMenuOpen(false)}
-                      className="bg-white rounded-md p-2 inline-flex items-center justify-center text-gray-400 hover:text-gray-500 hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-indigo-500"
+                      className="rounded-md p-2 inline-flex items-center justify-center text-gray-400 hover:text-gray-500 hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-indigo-500"
                     >
                       <span className="sr-only">Close menu</span>
                       <svg

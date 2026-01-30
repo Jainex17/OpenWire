@@ -195,7 +195,7 @@ export const Features5 = ({ activeDevice, sectionId }: SectionProps) => {
                             <EditableText sectionId={sectionId} field="title" defaultValue="Features that set us apart" />
                         </h2>
                         <p className="text-lg text-gray-600 hover:outline hover:outline-2 hover:outline-blue-500">
-                            <EditableText sectionId={sectionId} field="description" defaultValue="We've thought about every detail so you can focus on what matters most — building great products." />
+                            <EditableText sectionId={sectionId} field="description" defaultValue="We've thought about every detail so you can focus on what matters most building great products." />
                         </p>
                     </div>
 

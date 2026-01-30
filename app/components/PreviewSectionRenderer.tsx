@@ -1,5 +1,5 @@
 import { Navbar1, Navbar2, Navbar3, Navbar4 } from "@/components/layout/Navbar";
-import { Hero1, Hero2, Hero3, Hero4, Hero5 } from "@/components/layout/Hero";
+import { Hero1, Hero2, Hero3, Hero4 } from "@/components/layout/Hero";
 import { Footer1, Footer2, Footer3 } from "@/components/layout/Footer";
 import { Features1, Features2, Features3, Features4, Features5 } from "@/components/layout/Features";
 import { Content1, Content2, Content3 } from "@/components/layout/Content";
@@ -35,7 +35,6 @@ export default function PreviewSectionRenderer({ sectionId, sections }: PreviewS
     if (section.layoutId === 'hero-2') return <Hero2 activeDevice="desktop" sectionId={sectionId} />;
     if (section.layoutId === 'hero-3') return <Hero3 activeDevice="desktop" sectionId={sectionId} />;
     if (section.layoutId === 'hero-4') return <Hero4 activeDevice="desktop" sectionId={sectionId} />;
-    if (section.layoutId === 'hero-5') return <Hero5 activeDevice="desktop" sectionId={sectionId} />;
     return <Hero1 activeDevice="desktop" sectionId={sectionId} />;
   }
 

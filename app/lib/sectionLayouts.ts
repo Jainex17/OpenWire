@@ -32,7 +32,6 @@ export const SECTION_LAYOUTS: Record<SectionType, LayoutOption[]> = {
         { id: "hero-2", name: "Center Text, Bottom Image" },
         { id: "hero-3", name: "Full Width Background" },
         { id: "hero-4", name: "Split with Features" },
-        { id: "hero-5", name: "App Showcase" },
     ],
     features: [
         { id: "features-1", name: "Grid Icons" },

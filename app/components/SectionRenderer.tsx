@@ -26,9 +26,6 @@ const Hero3 = React.lazy(() =>
 const Hero4 = React.lazy(() =>
   import("@/components/layout/Hero").then((m) => ({ default: m.Hero4 })),
 );
-const Hero5 = React.lazy(() =>
-  import("@/components/layout/Hero").then((m) => ({ default: m.Hero5 })),
-);
 
 const Footer1 = React.lazy(() =>
   import("@/components/layout/Footer").then((m) => ({ default: m.Footer1 })),
@@ -212,7 +209,6 @@ export default React.memo(function SectionRenderer({
       if (section.layoutId === "hero-2") Component = Hero2;
       else if (section.layoutId === "hero-3") Component = Hero3;
       else if (section.layoutId === "hero-4") Component = Hero4;
-      else if (section.layoutId === "hero-5") Component = Hero5;
       else Component = Hero1;
       break;
 
